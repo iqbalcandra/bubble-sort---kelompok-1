@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
+from PIL import Image, ImageTk
+import os
 
 root = tk.Tk()
 root.title("Color Ball Sort Puzzle")
@@ -7,9 +9,8 @@ root.geometry("450x450")
 root.resizable(False, False)
 
 
-# =======================
 # Fungsi
-# =======================
+
 
 def show_login():
     register_frame.pack_forget()
@@ -30,9 +31,6 @@ def login():
         return
 
     messagebox.showinfo("Login", f"Selamat datang, {username}!")
-
-    # nanti bisa diarahkan ke menu utama
-    # import homescreen
 
 
 def register():
@@ -71,12 +69,23 @@ def show_register_password():
         reg_password.config(show="*")
         reg_confirm.config(show="*")
 
+# logo
 
-# =======================
-# LOGIN FRAME
-# =======================
+
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+logo_path = os.path.join(BASE_DIR, "aset", "logo_bubble.jpeg")
+
+logo_image = Image.open(logo_path)
+logo_image = logo_image.resize((120, 120))
 
 login_frame = tk.Frame(root)
+
+logo = ImageTk.PhotoImage(logo_image)
+
+tk.Label(login_frame, image=logo).pack(pady=10)
+
+
+# tampilan
 
 tk.Label(
     login_frame,
@@ -117,10 +126,6 @@ tk.Button(
     command=show_register
 ).pack()
 
-
-# =======================
-# REGISTER FRAME
-# =======================
 
 register_frame = tk.Frame(root)
 
@@ -168,10 +173,6 @@ tk.Button(
     command=show_login
 ).pack()
 
-
-# =======================
-# Tampilkan Login Pertama Kali
-# =======================
 
 show_login()
 
