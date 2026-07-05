@@ -1,34 +1,149 @@
 import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox
+# import menuscreen
+
+
+def kembali():
+    root.destroy()
+
+    # menu_root = tk.Tk()
+    # menuscreen.MenuScreen(menu_root)
+    # menu_root.mainloop()
+
 
 root = tk.Tk()
-root.title("Leaderboard Screen")
-root.geometry("500x400")
+root.title("Leaderboard")
+root.geometry("850x550")
+root.resizable(False, False)
+root.configure(bg="#f3f4f6")
 
-tk.Label(root, text="LEADERBOARD", font=("Arial", 16, "bold")).pack(pady=20)
+# ===========================
+# Judul
+# ===========================
 
-columns = ("Rank", "Username", "Score")
+tk.Label(
+    root,
+    text="Leaderboard",
+    font=("Arial", 20, "bold"),
+    bg="#f3f4f6",
+    fg="#0f5bb5"
+).pack(anchor="w", padx=30, pady=15)
 
-tree = ttk.Treeview(root, columns=columns, show="headings")
-tree.heading("Rank", text="Rank")
-tree.heading("Username", text="Username")
-tree.heading("Score", text="Score")
+# ===========================
+# Card Putih
+# ===========================
 
-tree.column("Rank", width=50)
-tree.column("Username", width=200)
-tree.column("Score", width=100)
+card = tk.Frame(root, bg="white", bd=1, relief="solid")
+card.pack(padx=60, pady=10, fill="both", expand=True)
 
-tree.pack(pady=20)
+# ===========================
+# Header Abu
+# ===========================
 
-# for item in data:
-#     tree.insert("", tk.END, values=item) MENUNGGU DATABASE
+header = tk.Frame(card, bg="#c9c9c9", height=45)
+header.pack(fill="x")
+
+tk.Label(
+    header,
+    text=" Top 5 Pemain Terbaik ",
+    bg="#c9c9c9",
+    fg="white",
+    font=("Arial", 12, "bold")
+).pack(side="left", padx=20, pady=10)
+
+tk.Label(
+    header,
+    text="Sesi Saat Ini",
+    bg="#d9d9d9",
+    fg="white",
+    padx=10
+).pack(side="right", padx=20, pady=8)
+
+# ===========================
+# Judul Kolom
+# ===========================
+
+judul = tk.Frame(card, bg="white")
+judul.pack(fill="x", padx=20, pady=10)
+
+judul_data = [
+    ("Peringkat", 12),
+    ("Nama", 28),
+    ("Skor", 12),
+    ("Level", 12),
+    ("Tanggal", 15)
+]
+
+for text, width in judul_data:
+    tk.Label(
+        judul,
+        text=text,
+        width=width,
+        bg="white",
+        fg="gray30",
+        font=("Arial", 9, "bold")
+    ).pack(side="left")
+
+# ===========================
+# Data Dummy
+# ===========================
+
+data = [
+    ("1", "Andi Pratama", "12,450", "Level 24", "12 Okt 2023"),
+    ("2", "Siti Rahayu", "11,200", "Level 21", "11 Okt 2023"),
+    ("3", "Budi Santoso", "10,850", "Level 19", "12 Okt 2023"),
+    ("4", "Lani Wijaya", "9,400", "Level 17", "10 Okt 2023"),
+    ("5", "Anda", "8,900", "Level 12", "Hari Ini")
+]
+
+# ===========================
+# Isi Leaderboard
+# ===========================
+
+for pemain in data:
+
+    row = tk.Frame(card, bg="white")
+    row.pack(fill="x", padx=20, pady=6)
+
+    tk.Label(row, text=pemain[0], width=12,
+             bg="white").pack(side="left")
+
+    tk.Label(row, text=pemain[1], width=28,
+             anchor="w", bg="white").pack(side="left")
+
+    tk.Label(row, text=pemain[2], width=12,
+             bg="white", font=("Arial", 10, "bold")).pack(side="left")
+
+    tk.Label(
+        row,
+        text=pemain[3],
+        width=12,
+        bg="#dddddd"
+    ).pack(side="left")
+
+    tk.Label(row, text=pemain[4], width=15,
+             bg="white").pack(side="left")
+
+# berfungsi untuk mengambil setiap data pemain satu per satu dari list data, kemudian membuat satu baris leaderboard untuk setiap pemain.
+
+# ===========================
+# Footer
+# ===========================
+
+footer = tk.Frame(card, bg="white")
+footer.pack(fill="x", side="bottom", pady=15, padx=20)
+
 
 tk.Button(
-    root,
+    footer,
     text="Kembali",
-    width=20
-).pack(pady=20)
+    width=15,
+    command=kembali
+).pack(side="right", padx=5)
 
+tk.Button(
+    footer,
+    text="Muat Ulang",
+    width=15
+).pack(side="right")
 
 root.mainloop()
