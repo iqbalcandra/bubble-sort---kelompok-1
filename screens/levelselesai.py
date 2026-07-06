@@ -1,9 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
 
+# untuk menampilkan halaman level selesai setelah menyelesaikan level
+
 
 def level_selesai(parent):
-
+    # mengatur warna background halaman
     parent.configure(bg="#F5F7FB")
 
     frame = tk.Frame(parent, bg="#F5F7FB")
@@ -44,6 +46,7 @@ def level_selesai(parent):
     ).pack(pady=(0, 20))
 
     # ================= CARD =================
+    # frame untuk menampilkan skor
     card = tk.Frame(
         frame,
         bg="white",
