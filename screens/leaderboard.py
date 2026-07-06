@@ -39,24 +39,17 @@ card.pack(padx=60, pady=10, fill="both", expand=True)
 # Header Abu
 # ===========================
 
-header = tk.Frame(card, bg="#c9c9c9", height=45)
+header = tk.Frame(card, bg="#0056C6", height=45)
 header.pack(fill="x")
 
 tk.Label(
     header,
     text=" Top 5 Pemain Terbaik ",
-    bg="#c9c9c9",
+    bg="#0056C6",
     fg="white",
     font=("Arial", 12, "bold")
 ).pack(side="left", padx=20, pady=10)
 
-tk.Label(
-    header,
-    text="Sesi Saat Ini",
-    bg="#d9d9d9",
-    fg="white",
-    padx=10
-).pack(side="right", padx=20, pady=8)
 
 # ===========================
 # Judul Kolom
@@ -135,15 +128,11 @@ footer.pack(fill="x", side="bottom", pady=15, padx=20)
 
 tk.Button(
     footer,
-    text="Kembali",
+    text=" <- Kembali",
     width=15,
+    bg="#0056C6",
+    fg="white",
     command=kembali
-).pack(side="right", padx=5)
-
-tk.Button(
-    footer,
-    text="Muat Ulang",
-    width=15
 ).pack(side="right")
 
 root.mainloop()

@@ -15,12 +15,11 @@ Terhubung ke:
 
 import tkinter as tk
 from tkinter import font as tkfont
-import random
-import copy
 
 from logic.timer_manager import TimerManager
 from logic.score_manager import ScoreManager
 from logic.undo_manager import UndoManager
+from logic.game_logic import generate_board, validasi_pindah, pindah_bola, cek_menang
 
 
 # ---------------------------------------------------------------------------
@@ -28,6 +27,7 @@ from logic.undo_manager import UndoManager
 # ---------------------------------------------------------------------------
 BG_COLOR = "#F1F2FB"          # background lavender muda
 CARD_COLOR = "#FFFFFF"
+AREA_CARD_COLOR = "#D9D9D9"   # card abu-abu pembungkus tabung, sesuai desain baru
 PRIMARY_BLUE = "#1D4ED8"
 PRIMARY_BLUE_DARK = "#1E3A8A"
 TEXT_DARK = "#1F2330"
@@ -55,31 +55,10 @@ WARNA_BOLA = [
 LEBAR_WINDOW = 1440
 TINGGI_WINDOW = 1024
 
-KAPASITAS_TABUNG = 4
 LEBAR_TABUNG = 96          # diperbesar menyesuaikan window 1440x1024
 TINGGI_TABUNG = 380
 JARAK_TABUNG = 34
 RADIUS_BOLA = 34
-
-
-def generate_board(jumlah_warna: int, jumlah_tabung: int) -> list:
-    """
-    Membuat susunan awal papan permainan secara acak.
-    jumlah_tabung = jumlah_warna (terisi) + 2 tabung kosong (sesuai laporan 2.1).
-    """
-    bola_semua = []
-    for i in range(jumlah_warna):
-        bola_semua += [i] * KAPASITAS_TABUNG
-    random.shuffle(bola_semua)
-
-    papan = [[] for _ in range(jumlah_tabung)]
-    idx = 0
-    for t in range(jumlah_warna):
-        for _ in range(KAPASITAS_TABUNG):
-            papan[t].append(bola_semua[idx])
-            idx += 1
-    # sisa tabung (2 terakhir) dibiarkan kosong sebagai ruang gerak
-    return papan
 
 
 class GameScreen(tk.Frame):
@@ -102,11 +81,11 @@ class GameScreen(tk.Frame):
         self.user_id = user_id
         self.pack_propagate(False)  # kunci ukuran frame, tidak menyusut mengikuti isi
 
-        self.font_judul = tkfont.Font(family="Segoe UI", size=20, weight="bold")
-        self.font_badge = tkfont.Font(family="Segoe UI", size=11, weight="bold")
-        self.font_label = tkfont.Font(family="Segoe UI", size=11, weight="bold")
-        self.font_angka = tkfont.Font(family="Segoe UI", size=18, weight="bold")
-        self.font_tombol = tkfont.Font(family="Segoe UI", size=13, weight="bold")
+        self.font_judul = tkfont.Font(family="Segoe UI", size=13, weight="bold")
+        self.font_badge = tkfont.Font(family="Segoe UI", size=8, weight="bold")
+        self.font_label = tkfont.Font(family="Segoe UI", size=9, weight="bold")
+        self.font_angka = tkfont.Font(family="Segoe UI", size=13, weight="bold")
+        self.font_tombol = tkfont.Font(family="Segoe UI", size=11, weight="bold")
 
         # --- state permainan ---
         self.papan = generate_board(level_data["jumlah_warna"], level_data["jumlah_tabung"])
@@ -132,16 +111,16 @@ class GameScreen(tk.Frame):
     # ------------------------------------------------------------------
     def _bangun_ui(self):
         # ---------- HEADER ----------
-        header = tk.Frame(self, bg=CARD_COLOR, height=90)
+        header = tk.Frame(self, bg=CARD_COLOR, height=64)
         header.pack(side="top", fill="x")
         header.pack_propagate(False)
 
         btn_home = tk.Button(
-            header, text="\u2302", font=("Segoe UI", 16), bg="#EEF0FB", fg=PRIMARY_BLUE,
+            header, text="\u2302", font=("Segoe UI", 12), bg="#EEF0FB", fg=PRIMARY_BLUE,
             relief="flat", bd=0, width=3, cursor="hand2",
             command=self._ke_menu_utama,
         )
-        btn_home.pack(side="left", padx=(28, 10), pady=20)
+        btn_home.pack(side="left", padx=(20, 8), pady=14)
 
         judul_frame = tk.Frame(header, bg=CARD_COLOR)
         judul_frame.pack(side="left", pady=8)
@@ -183,13 +162,18 @@ class GameScreen(tk.Frame):
                              bg="#EEF0FB", fg=PRIMARY_BLUE, padx=12, pady=8)
         btn_gear.pack(side="right", padx=28)
 
-        # ---------- AREA PERMAINAN (CANVAS) ----------
-        area = tk.Frame(self, bg=BG_COLOR, width=LEBAR_WINDOW, height=TINGGI_WINDOW - 90 - 140)
+        # ---------- AREA PERMAINAN (CARD ABU-ABU + CANVAS) ----------
+        area = tk.Frame(self, bg=BG_COLOR, width=LEBAR_WINDOW, height=TINGGI_WINDOW - 64 - 140)
         area.pack(side="top", fill="both", expand=True)
         area.pack_propagate(False)
 
+        # Card abu-abu muda pembungkus tabung, sesuai desain (dengan margin dari tepi)
+        card = tk.Frame(area, bg=AREA_CARD_COLOR)
+        card.place(relx=0.5, rely=0.5, anchor="center",
+                   width=LEBAR_WINDOW - 80, height=TINGGI_WINDOW - 64 - 140 - 40)
+
         lebar_canvas = self.level_data["jumlah_tabung"] * (LEBAR_TABUNG + JARAK_TABUNG) + JARAK_TABUNG
-        self.canvas = tk.Canvas(area, bg=BG_COLOR, highlightthickness=0,
+        self.canvas = tk.Canvas(card, bg=AREA_CARD_COLOR, highlightthickness=0,
                                  width=lebar_canvas, height=TINGGI_TABUNG + 40)
         self.canvas.place(relx=0.5, rely=0.5, anchor="center")
         self.canvas.bind("<Button-1>", self._saat_klik_canvas)
@@ -231,10 +215,13 @@ class GameScreen(tk.Frame):
             x1 = x0 + LEBAR_TABUNG
             y1 = y0 + TINGGI_TABUNG
 
-            outline_color = "#FBBF24" if i == self.tabung_terpilih else "#D8DCF5"
+            outline_color = "#FBBF24" if i == self.tabung_terpilih else "#FFFFFF"
             outline_width = 3 if i == self.tabung_terpilih else 2
 
-            self._gambar_kapsul(x0, y0, x1, y1, outline_color, outline_width)
+            self.canvas.create_rectangle(
+                x0, y0, x1, y1,
+                outline=outline_color, width=outline_width, fill=""
+            )
 
             # gambar bola dari bawah tabung ke atas
             isi = self.papan[i]
@@ -247,14 +234,6 @@ class GameScreen(tk.Frame):
                     cx + RADIUS_BOLA, cy + RADIUS_BOLA,
                     fill=warna, outline="",
                 )
-
-    def _gambar_kapsul(self, x0, y0, x1, y1, outline_color, outline_width):
-        """Menggambar bentuk tabung (kapsul rounded) memakai kombinasi arc & line."""
-        r = (x1 - x0) / 2
-        self.canvas.create_arc(x0, y1 - 2 * r, x1, y1, start=180, extent=180,
-                                style="arc", outline=outline_color, width=outline_width)
-        self.canvas.create_line(x0, y0, x0, y1 - r, fill=outline_color, width=outline_width)
-        self.canvas.create_line(x1, y0, x1, y1 - r, fill=outline_color, width=outline_width)
 
     # ------------------------------------------------------------------
     # Interaksi klik tabung
@@ -284,47 +263,20 @@ class GameScreen(tk.Frame):
                 self._gambar_papan()
                 return
 
-            berhasil = self._coba_pindah(self.tabung_terpilih, index_tabung)
+            sumber = self.tabung_terpilih
+            tujuan = index_tabung
+
+            berhasil = False
+            if validasi_pindah(self.papan, sumber, tujuan):
+                # simpan state SEBELUM berubah, untuk fitur undo
+                self.undo_manager.simpan_state(self.papan)
+                berhasil = pindah_bola(self.papan, sumber, tujuan)
+
             self.tabung_terpilih = None
             self._gambar_papan()
 
-            if berhasil and self._cek_menang():
+            if berhasil and cek_menang(self.papan):
                 self._saat_menang()
-
-    def _coba_pindah(self, sumber: int, tujuan: int) -> bool:
-        """
-        Validasi & eksekusi pemindahan bola sesuai aturan (laporan BAB 2.1):
-        - bola hanya dari posisi teratas tabung sumber
-        - hanya ke tabung kosong ATAU tabung dengan warna teratas sama
-        - jika tidak valid, seleksi dibatalkan otomatis (tidak ada perubahan papan)
-        """
-        tabung_sumber = self.papan[sumber]
-        tabung_tujuan = self.papan[tujuan]
-
-        if not tabung_sumber:
-            return False
-        if len(tabung_tujuan) >= KAPASITAS_TABUNG:
-            return False
-        if tabung_tujuan and tabung_tujuan[-1] != tabung_sumber[-1]:
-            return False
-
-        # simpan state SEBELUM berubah, untuk fitur undo
-        self.undo_manager.simpan_state(self.papan)
-
-        bola = tabung_sumber.pop()
-        tabung_tujuan.append(bola)
-        return True
-
-    def _cek_menang(self) -> bool:
-        """Level selesai jika setiap tabung hanya berisi 1 warna atau kosong."""
-        for tabung in self.papan:
-            if not tabung:
-                continue
-            if len(set(tabung)) > 1:
-                return False
-            if len(tabung) != KAPASITAS_TABUNG:
-                return False
-        return True
 
     # ------------------------------------------------------------------
     # Undo & Reset
