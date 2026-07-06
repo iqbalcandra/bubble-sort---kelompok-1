@@ -1,14 +1,18 @@
 import tkinter as tk
 
+# untuk menampilkan halaman game over
+
 
 def tampil(parent):
 
-    # Hapus halaman sebelumnya
+    # menghapus widget yang ada pada halaman sebelumnya
     for widget in parent.winfo_children():
         widget.destroy()
 
+    # untuk background halaman gameover
     parent.configure(bg="#FDECEC")
 
+    # frame utama
     main = tk.Frame(parent, bg="#FDECEC")
     main.pack(expand=True)
 
@@ -30,6 +34,7 @@ def tampil(parent):
         fg="#E53935"
     ).pack()
 
+    # pesan kepada pemain
     tk.Label(
         main,
         text="Waktu habis! Kamu belum berhasil\nmenyelesaikan level ini.",
@@ -40,6 +45,7 @@ def tampil(parent):
     ).pack(pady=(5, 20))
 
     # ================= CARD =================
+    # frame untuk menampilkan pesan semangat
     card = tk.Frame(
         main,
         bg="white",
@@ -74,6 +80,7 @@ def tampil(parent):
     ).pack()
 
     # ================= BUTTON =================
+    # tombol untuk mengulang permainan
     tk.Button(
         main,
         text="↻ Coba Lagi",
@@ -86,6 +93,7 @@ def tampil(parent):
         cursor="hand2"
     ).pack(pady=(25, 10))
 
+    # tombol untuk kembali ke menu utama
     tk.Button(
         main,
         text="☰ Menu Utama",
@@ -96,14 +104,15 @@ def tampil(parent):
         height=2,
         relief="solid",
         cursor="hand2"
+        # TODO : MENAMBAHKAN COMMAND UNTUK BALIK KE MENU SCREEN
     ).pack()
 
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Game Over")
-    root.geometry("800x600")
+# if __name__ == "__main__":
+#     root = tk.Tk()
+#     root.title("Game Over")
+#     root.geometry("800x600")
 
-    tampil(root)
+#     tampil(root)
 
-    root.mainloop()
+#     root.mainloop()
