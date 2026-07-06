@@ -11,17 +11,23 @@ root.resizable(False, False)
 
 # ==================== FUNGSI ====================
 
+# Fungsi untuk menampilkan frame login
 def show_login():
+    # menyembunyikan frame register
     register_frame.pack_forget()
     login_frame.pack(fill="both", expand=True)
 
+# Fungsi untuk menampilkan frame register
+
 
 def show_register():
+    # menyembunyikan frame login
     login_frame.pack_forget()
     register_frame.pack(fill="both", expand=True)
 
 
 def login():
+    # mengambil isi username  dari entry login_username dan password dari entry login_password
     username = login_username.get()
     password = login_password.get()
 
@@ -33,6 +39,7 @@ def login():
 
 
 def register():
+    # mengambil data dari entry register
     username = reg_username.get()
     password = reg_password.get()
     confirm = reg_confirm.get()
@@ -52,9 +59,13 @@ def register():
 
     show_login()
 
+# untuk menampilakn / menyembukin password pada login dan register
+
 
 def show_login_password():
+    # jika checkbutton dicentang
     if login_show.get():
+        # password akan munculs
         login_password.config(show="")
     else:
         login_password.config(show="*")
