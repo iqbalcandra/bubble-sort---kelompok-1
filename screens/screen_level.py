@@ -1,129 +1,238 @@
+"""
+level_screen.py
+Halaman "Pilih Tingkat Kesulitan" — menampilkan 3 pilihan level
+(Mudah/Sedang/Sulit) sesuai desain UI (kanvas 1440x1024 desktop).
+"""
+
 import tkinter as tk
 from tkinter import messagebox
 
-root = tk.Tk()
-root.title("Pilih Tingkat Kesulitan")
-root.geometry("900x500")
-root.resizable(False, False)
-root.configure(bg="#f5f5f5")
+from screens.theme import (
+    COLOR_BG, COLOR_WHITE, COLOR_PRIMARY, COLOR_PRIMARY_LIGHT,
+    COLOR_MEDIUM, COLOR_MEDIUM_LIGHT, COLOR_HARD, COLOR_HARD_LIGHT,
+    COLOR_TEXT_DARK, COLOR_TEXT_GRAY, COLOR_BORDER,
+    FONT_FAMILY, FONT_TITLE, FONT_SUBTITLE, FONT_LOGO,
+    WINDOW_WIDTH, WINDOW_HEIGHT, SIDEBAR_WIDTH,
+)
+
+LEVELS_DATA = [
+    {
+        "tingkat": "TINGKAT 1",
+        "judul": "Mudah",
+        "nama_level": "Easy",
+        "deskripsi": "Cocok untuk memulai petualangan\npertamamu. Santai dan menyenangkan!",
+        "warna": COLOR_PRIMARY,
+        "warna_bg_icon": COLOR_PRIMARY_LIGHT,
+        "bintang": 1,
+    },
+    {
+        "tingkat": "TINGKAT 2",
+        "judul": "Sedang",
+        "nama_level": "Medium",
+        "deskripsi": "Butuh sedikit konsentrasi lebih\nuntuk memilah semua bola berwarna.",
+        "warna": COLOR_MEDIUM,
+        "warna_bg_icon": COLOR_MEDIUM_LIGHT,
+        "bintang": 2,
+    },
+    {
+        "tingkat": "TINGKAT 3",
+        "judul": "Sulit",
+        "nama_level": "Hard",
+        "deskripsi": "Hanya untuk para ahli! Banyak bola\ndan tabung yang menantang otak.",
+        "warna": COLOR_HARD,
+        "warna_bg_icon": COLOR_HARD_LIGHT,
+        "bintang": 3,
+    },
+]
 
 
-def pilih(level):
-    messagebox.showinfo(
-        "Level Dipilih",
-        f"Anda memilih tingkat kesulitan {level}"
+class LevelScreen(tk.Frame):
+    """
+    Frame halaman pilih tingkat kesulitan.
+    Bisa dipasang di dalam window utama (main.py) dengan sistem
+    berpindah-pindah frame, atau dijalankan berdiri sendiri untuk testing.
+
+    Parameter:
+        parent          : widget induk (Tk atau Frame container)
+        user_data       : dict berisi info user login, contoh:
+                           {"username": "Pemain Muda", "level": 12}
+        on_pilih_level  : callback(nama_level: str) dipanggil saat kartu level dipilih
+        on_navigate     : callback(tujuan: str) untuk navigasi sidebar
+                           (mis. "beranda", "leaderboard", "progress", "keluar")
+    """
+
+    def __init__(self, parent, user_data=None, on_pilih_level=None, on_navigate=None):
+        super().__init__(parent, bg=COLOR_BG)
+        self.user_data = user_data or {"username": "Pemain Muda", "level": 12}
+        self.on_pilih_level = on_pilih_level
+        self.on_navigate = on_navigate
+
+        self._build_sidebar()
+        self._build_main_content()
+
+    # ------------------------------------------------------------
+    # SIDEBAR
+    # ------------------------------------------------------------
+    def _build_sidebar(self):
+        sidebar = tk.Frame(self, bg=COLOR_WHITE, width=SIDEBAR_WIDTH)
+        sidebar.pack(side="left", fill="y")
+        sidebar.pack_propagate(False)
+
+        # Profil pemain
+        profil_frame = tk.Frame(sidebar, bg=COLOR_WHITE)
+        profil_frame.pack(fill="x", padx=24, pady=(28, 20))
+
+        avatar = tk.Label(
+            profil_frame, text="🧑", font=(FONT_FAMILY, 22),
+            bg=COLOR_PRIMARY_LIGHT, fg=COLOR_PRIMARY,
+            width=2, height=1, relief="solid", bd=1,
+        )
+        avatar.grid(row=0, column=0, rowspan=2, padx=(0, 10))
+
+        tk.Label(
+            profil_frame, text=self.user_data.get("username", "Pemain Muda"),
+            font=(FONT_FAMILY, 11, "bold"), fg=COLOR_PRIMARY, bg=COLOR_WHITE,
+        ).grid(row=0, column=1, sticky="w")
+        tk.Label(
+            profil_frame, text=f"Level {self.user_data.get('level', 1)}",
+            font=(FONT_FAMILY, 9), fg=COLOR_TEXT_GRAY, bg=COLOR_WHITE,
+        ).grid(row=1, column=1, sticky="w")
+
+        # Menu navigasi
+        self._nav_button(sidebar, "🏠  Beranda", "beranda", active=True)
+        self._nav_button(sidebar, "🏆  Papan Peringkat", "leaderboard")
+        self._nav_button(sidebar, "🎖  Progress", "progress")
+
+        # Tombol keluar di bagian bawah
+        keluar_frame = tk.Frame(sidebar, bg=COLOR_WHITE)
+        keluar_frame.pack(side="bottom", fill="x", padx=24, pady=24)
+        tk.Button(
+            keluar_frame, text="⏻  Keluar", font=(FONT_FAMILY, 10, "bold"),
+            fg="#DC2626", bg=COLOR_WHITE, bd=0, cursor="hand2",
+            activebackground=COLOR_WHITE, activeforeground="#DC2626",
+            anchor="w", command=lambda: self._navigate("keluar"),
+        ).pack(fill="x")
+
+    def _nav_button(self, parent, text, target, active=False):
+        bg = COLOR_PRIMARY if active else COLOR_WHITE
+        fg = COLOR_WHITE if active else COLOR_TEXT_DARK
+        btn = tk.Button(
+            parent, text=text, font=(FONT_FAMILY, 11, "bold" if active else "normal"),
+            bg=bg, fg=fg, bd=0, anchor="w", padx=16, pady=10, cursor="hand2",
+            activebackground=bg, activeforeground=fg,
+            command=lambda: self._navigate(target),
+        )
+        btn.pack(fill="x", padx=16, pady=3)
+
+    def _navigate(self, target):
+        if target == "keluar":
+            jawab = messagebox.askyesno("Keluar", "Apakah kamu yakin ingin keluar?")
+            if not jawab:
+                return
+        if self.on_navigate:
+            self.on_navigate(target)
+
+    # ------------------------------------------------------------
+    # MAIN CONTENT
+    # ------------------------------------------------------------
+    def _build_main_content(self):
+        content = tk.Frame(self, bg=COLOR_BG)
+        content.pack(side="left", fill="both", expand=True)
+
+        # Judul
+        tk.Label(
+            content, text="Pilih Tingkat Kesulitan",
+            font=FONT_TITLE, bg=COLOR_BG, fg=COLOR_TEXT_DARK,
+        ).pack(pady=(70, 6))
+
+        tk.Label(
+            content, text="Tentukan tantanganmu hari ini dan mulailah bermain!",
+            font=FONT_SUBTITLE, bg=COLOR_BG, fg=COLOR_TEXT_GRAY,
+        ).pack()
+
+        # Container kartu level
+        card_container = tk.Frame(content, bg=COLOR_BG)
+        card_container.pack(pady=60)
+
+        for data in LEVELS_DATA:
+            self._buat_card(card_container, data)
+
+    def _buat_card(self, parent, data):
+        card = tk.Frame(
+            parent, bg=COLOR_WHITE, width=260, height=340,
+            highlightbackground=COLOR_BORDER, highlightthickness=1,
+        )
+        card.pack(side="left", padx=18)
+        card.pack_propagate(False)
+
+        # Ikon bintang dalam lingkaran
+        icon_wrap = tk.Label(
+            card, text="★" * data["bintang"],
+            font=(FONT_FAMILY, 16, "bold"),
+            bg=data["warna_bg_icon"], fg=data["warna"],
+            width=4, height=2,
+        )
+        icon_wrap.pack(pady=(30, 14))
+
+        # Badge tingkat
+        badge = tk.Label(
+            card, text=data["tingkat"], font=(FONT_FAMILY, 8, "bold"),
+            bg=data["warna_bg_icon"], fg=data["warna"], padx=10, pady=3,
+        )
+        badge.pack(pady=(0, 8))
+
+        # Judul level
+        tk.Label(
+            card, text=data["judul"], font=(FONT_FAMILY, 20, "bold"),
+            bg=COLOR_WHITE, fg=COLOR_TEXT_DARK,
+        ).pack()
+
+        # Deskripsi
+        tk.Label(
+            card, text=data["deskripsi"], font=(FONT_FAMILY, 9),
+            bg=COLOR_WHITE, fg=COLOR_TEXT_GRAY, justify="center", wraplength=210,
+        ).pack(pady=(10, 0))
+
+        # Tombol pilih
+        tk.Button(
+            card, text=f"Pilih {data['judul']}", font=(FONT_FAMILY, 10, "bold"),
+            bg=data["warna"], fg=COLOR_WHITE, bd=0, pady=10, cursor="hand2",
+            activebackground=data["warna"], activeforeground=COLOR_WHITE,
+            command=lambda d=data: self._pilih(d["nama_level"]),
+        ).pack(side="bottom", fill="x", padx=24, pady=24)
+
+    def _pilih(self, nama_level):
+        if self.on_pilih_level:
+            self.on_pilih_level(nama_level)
+        else:
+            messagebox.showinfo("Level Dipilih", f"Anda memilih tingkat kesulitan {nama_level}")
+
+
+# ------------------------------------------------------------
+# MODE STANDALONE (untuk testing langsung tanpa main.py)
+# ------------------------------------------------------------
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.title("Pilih Tingkat Kesulitan")
+    root.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
+    root.resizable(False, False)
+    root.configure(bg=COLOR_BG)
+
+    def contoh_pilih_level(nama_level):
+        messagebox.showinfo("Level Dipilih", f"Anda memilih tingkat kesulitan {nama_level}")
+
+    def contoh_navigate(target):
+        if target == "keluar":
+            root.destroy()
+        else:
+            messagebox.showinfo("Navigasi", f"Pindah ke halaman: {target}")
+
+    screen = LevelScreen(
+        root,
+        user_data={"username": "Pemain Muda", "level": 12},
+        on_pilih_level=contoh_pilih_level,
+        on_navigate=contoh_navigate,
     )
+    screen.pack(fill="both", expand=True)
 
-
-def kembali():
-    root.destroy()
-
-# Judul
-
-
-tk.Label(
-    root,
-    text="Pilih Tingkat Kesulitan",
-    font=("Arial", 22, "bold"),
-    bg="#f5f5f5"
-).pack(pady=(30, 5))
-
-tk.Label(
-    root,
-    text="Tentukan tantanganmu hari ini dan mulailah bermain!",
-    font=("Arial", 11),
-    bg="#f5f5f5",
-    fg="gray40"
-).pack()
-
-
-# Card
-
-
-card_frame = tk.Frame(root, bg="#f5f5f5")
-card_frame.pack(pady=40)
-
-
-def buat_card(parent, tingkat, judul, deskripsi, warna):
-    # yg di dalam kurung itu parameter, parent itu tempat card akan ditempatkan, tingkat itu level kesulitan, judul itu nama level,
-    # deskripsi itu penjelasan level, dan warna itu warna tombol pilih.
-
-    card = tk.Frame(
-        parent,
-        bg="white",
-        width=220,
-        height=260,
-        relief="solid",
-        bd=1
-    )
-
-    card.pack(side="left", padx=15)
-    card.pack_propagate(False)
-
-    tk.Label(
-        card,
-        text=tingkat,
-        bg="white",
-        fg="gray",
-        font=("Arial", 10, "bold")
-    ).pack(pady=(20, 5))
-
-    tk.Label(
-        card,
-        text=judul,
-        bg="white",
-        font=("Arial", 18, "bold")
-    ).pack()
-
-    tk.Label(
-        card,
-        text=deskripsi,
-        bg="white",
-        justify="center",
-        wraplength=180
-    ).pack(pady=20)
-
-    tk.Button(
-        card,
-        text=f"Pilih {judul}",
-        bg=warna,
-        fg="white",
-        width=18,
-        command=lambda: pilih(judul)
-    ).pack(side="bottom", pady=20)
-
-
-buat_card(
-    card_frame,
-    "TINGKAT 1",
-    "Mudah",
-    "Cocok untuk memulai\npetualangan pertamamu.\n\nSantai dan menyenangkan!",
-    "#4CAF50"
-)
-
-buat_card(
-    card_frame,
-    "TINGKAT 2",
-    "Sedang",
-    "Butuh sedikit konsentrasi\nlebih untuk memilah semua\nbola berwarna.",
-    "#FFC107"
-)
-
-buat_card(
-    card_frame,
-    "TINGKAT 3",
-    "Sulit",
-    "Hanya untuk para ahli!\n\nBanyak bola dan tabung\nyang menantang otak.",
-    "#F44336"
-)
-
-# Tombol kembali
-
-tk.Button(
-    root,
-    text="Kembali",
-    width=15,
-    command=kembali
-).pack(pady=15)
-
-root.mainloop()
+    root.mainloop()
