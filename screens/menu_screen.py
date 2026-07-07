@@ -1,143 +1,216 @@
+import os
 import tkinter as tk
 from tkinter import messagebox
+from PIL import Image, ImageTk
 
-# import gamescreen
-# import leaderboardscreen
-# import progresscreen
+# ---------------------------------------
+# FUNGSI AKSI
+# ---------------------------------------
 
-
-# tombol play di banner biru -> mulai/lanjut main game
 def mulai_game():
-    messagebox.showinfo("Mulai Game", "Melanjutkan dari Level 12...")
+    messagebox.showinfo("Mulai Game", "Membuka halaman pemilihan level...")
 
-
-# nav "Papan Peringkat" & card Papan Peringkat -> buka halaman leaderboard
 def buka_leaderboard():
-    root.destroy()
-    # leaderboard_root = tk.Tk()
-    # leaderboardscreen.LeaderboardScreen(leaderboard_root)
-    # leaderboard_root.mainloop()
+    messagebox.showinfo("Leaderboard", "Halaman leaderboard akan dibuka.")
 
+def buka_progress():
+    messagebox.showinfo("Progress", "Halaman progress akan dibuka.")
 
-# nav "Prestasi" & card Progres Saya -> buka halaman statistik/progres
-def buka_progres():
-    messagebox.showinfo("Progres Saya", "Menampilkan statistik permainan...")
+def buka_setting():
+    messagebox.showinfo("Pengaturan", "Halaman pengaturan akan dibuka.")
 
-
-# tombol Keluar (sidebar / bar pink) -> minta konfirmasi dulu sebelum nutup app
 def keluar():
-    if messagebox.askyesno("Keluar", "Yakin mau keluar dari game?"):
+    if messagebox.askyesno("Keluar", "Apakah Anda yakin ingin keluar?"):
         root.destroy()
 
+def hover_card(frame, masuk):
+    warna = "#F8FAFF" if masuk else "white"
+    def ubah(f):
+        try:
+            f.configure(bg=warna)
+        except tk.TclError:
+            pass
+        for c in f.winfo_children():
+            ubah(c)
+    ubah(frame)
+
+def buat_card_klik(frame, command):
+    frame.bind("<Button-1>", lambda e: command())
+    frame.bind("<Enter>", lambda e: hover_card(frame, True))
+    frame.bind("<Leave>", lambda e: hover_card(frame, False))
+    frame.configure(cursor="hand2")
+    for child in frame.winfo_children():
+        child.bind("<Button-1>", lambda e: command())
+        child.configure(cursor="hand2")
+        for cucu in child.winfo_children():
+            cucu.bind("<Button-1>", lambda e: command())
+            cucu.configure(cursor="hand2")
+
+
+# ---------------------------------------
+# WINDOW
+# ---------------------------------------
 
 root = tk.Tk()
 root.title("Color Ball Sort Puzzle")
-root.geometry("1000x650")
+root.geometry("1440x1024")
+root.configure(bg="#F5F7FB")
 root.resizable(False, False)
-root.configure(bg="#f9f9ff")
 
-# ===========================
-# Header atas
-# ===========================
-header = tk.Frame(root, bg="#f9f9ff")
-header.pack(fill="x", pady=15)
+# ---------------------------------------
+# PATH ASSET
+# ---------------------------------------
 
-logo = tk.Canvas(header, width=48, height=48, bg="#f9f9ff", highlightthickness=0)
-logo.create_oval(2, 2, 46, 46, fill="#2170e4", outline="")
-logo.create_text(24, 24, text="CB", fill="white", font=("Arial", 11, "bold"))
-logo.pack(side="left", padx=20)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+folder_aset = os.path.join(BASE_DIR, "aset")
+folder_icon = os.path.join(folder_aset, "Icon menu utama")
 
-tk.Label(header, text="Color Ball Sort Puzzle", font=("Arial", 16, "bold"),
-         bg="#f9f9ff", fg="#191b23").pack(side="left")
+def muat(path, size=None):
+    img = Image.open(path)
+    if size:
+        img = img.resize(size)
+    return ImageTk.PhotoImage(img)
 
-tk.Label(header, text="⚙", font=("Arial", 14), bg="#f9f9ff",
-         fg="#2170e4").pack(side="right", padx=25)
+logo = muat(os.path.join(folder_aset, "logo_baru.PNG"), (55, 55))
+icon_home = muat(os.path.join(folder_icon, "Icon home.png"))
+icon_trophy = muat(os.path.join(folder_icon, "Icon trophy.png"))
+icon_progress = muat(os.path.join(folder_icon, "Icon progress.png"))
+icon_keluar = muat(os.path.join(folder_icon, "Icon keluar.png"))
+gambar_trophy = muat(os.path.join(folder_icon, "Gambar trophy.png"), (60, 60))
+gambar_progress = muat(os.path.join(folder_icon, "Gambar progress.png"), (60, 60))
+icon_setting = muat(os.path.join(folder_icon, "Button setting.png"), (26, 26))
+icon_play = muat(os.path.join(folder_icon, "Icon play.png"), (40, 40))
 
-# ===========================
-# Sidebar kiri
-# ===========================
-sidebar = tk.Frame(root, bg="#f9f9ff", width=210, height=560)
-sidebar.pack(side="left", fill="y", padx=(15, 0))
+# ---------------------------------------
+# HEADER
+# ---------------------------------------
 
-tk.Button(sidebar, text="🏠  Beranda", font=("Arial", 10, "bold"), bg="#2170e4",
-          fg="white", relief="flat", anchor="w", padx=15
-          ).pack(fill="x", pady=(10, 5))
+header = tk.Frame(root, bg="#F5F7FB", height=80)
+header.pack(fill="x")
 
-tk.Button(sidebar, text="🏆  Papan Peringkat", font=("Arial", 10), bg="#f9f9ff",
-          fg="#333", relief="flat", anchor="w", padx=15, command=buka_leaderboard
-          ).pack(fill="x", pady=5)
+tk.Label(header, image=logo, bg="#F5F7FB").pack(side="left", padx=(25, 10), pady=15)
+tk.Label(
+    header, text="Color Ball Sort Puzzle", font=("Arial", 18, "bold"),
+    bg="#F5F7FB", fg="#1565D8"
+).pack(side="left")
 
-tk.Button(sidebar, text="🎖  Prestasi", font=("Arial", 10), bg="#f9f9ff",
-          fg="#333", relief="flat", anchor="w", padx=15, command=buka_progres
-          ).pack(fill="x", pady=5)
+tk.Button(
+    header, image=icon_setting, bg="#F5F7FB", relief="flat",
+    cursor="hand2", command=buka_setting
+).pack(side="right", padx=30)
 
-tk.Button(sidebar, text="↪  Keluar", font=("Arial", 10), bg="#f9f9ff",
-          fg="#ba1a1a", relief="flat", anchor="w", padx=15, command=keluar
-          ).pack(fill="x", side="bottom", pady=20)
+# ---------------------------------------
+# FRAME UTAMA
+# ---------------------------------------
 
-# ===========================
-# Konten utama (kanan sidebar)
-# ===========================
-konten = tk.Frame(root, bg="#f9f9ff")
-konten.pack(side="left", fill="both", expand=True, padx=20, pady=10)
+frame_utama = tk.Frame(root, bg="#F5F7FB")
+frame_utama.pack(fill="both", expand=True)
 
-# banner biru - mulai game
-banner = tk.Frame(konten, bg="#2170e4")
-banner.pack(fill="x", pady=(10, 20), ipady=20)
+# ---------------------------------------
+# SIDEBAR
+# ---------------------------------------
 
-tk.Label(banner, text="Mainkan Sekarang", font=("Arial", 8, "bold"), bg="#4a8dec",
-         fg="white", padx=10, pady=3).place(x=25, y=15)
+sidebar = tk.Frame(frame_utama, bg="white", width=230)
+sidebar.pack(side="left", fill="y", padx=(20, 10), pady=10)
+sidebar.pack_propagate(False)
 
-isi_banner = tk.Frame(banner, bg="#2170e4")
-isi_banner.place(x=25, y=45)
-tk.Label(isi_banner, text="Mulai Game", font=("Arial", 20, "bold"),
-         bg="#2170e4", fg="white").pack(side="left")
-tk.Button(isi_banner, text="▶", font=("Arial", 12, "bold"), bg="white",
-          fg="#2170e4", relief="flat", width=2, command=mulai_game
-          ).pack(side="left", padx=15)
+tk.Button(
+    sidebar, text="  Beranda", image=icon_home, compound="left",
+    font=("Arial", 11, "bold"), bg="#1565D8", fg="white",
+    relief="flat", anchor="w", padx=20
+).pack(fill="x", pady=(20, 8))
 
-tk.Label(banner, text="Lanjutkan dari Level 12 dan cetak skor tertinggi.",
-         font=("Arial", 9), bg="#2170e4", fg="#dce7fb").place(x=25, y=85)
+tk.Button(
+    sidebar, text="  Papan Peringkat", image=icon_trophy, compound="left",
+    font=("Arial", 11), bg="white", fg="#333333", relief="flat",
+    anchor="w", padx=20, cursor="hand2", command=buka_leaderboard
+).pack(fill="x", pady=8)
 
-banner.configure(height=140)
+tk.Button(
+    sidebar, text="  Progress", image=icon_progress, compound="left",
+    font=("Arial", 11), bg="white", fg="#333333", relief="flat",
+    anchor="w", padx=20, cursor="hand2", command=buka_progress
+).pack(fill="x", pady=8)
 
-# dua card menu
-card_area = tk.Frame(konten, bg="#f9f9ff")
-card_area.pack(fill="x")
+tk.Label(sidebar, bg="white").pack(expand=True)  # ruang kosong
 
-card_lb = tk.Frame(card_area, bg="white", bd=1, relief="solid", width=360, height=160)
-card_lb.pack(side="left", padx=(0, 15))
-card_lb.pack_propagate(False)
+tk.Button(
+    sidebar, text="  Keluar", image=icon_keluar, compound="left",
+    font=("Arial", 11), bg="white", fg="#D32F2F", relief="flat",
+    anchor="w", padx=20, cursor="hand2", command=keluar
+).pack(fill="x", pady=20)
 
-tk.Frame(card_lb, bg="#ffdcc6", width=50, height=50).place(x=20, y=20)
-tk.Label(card_lb, text="🏆", bg="#ffdcc6", font=("Arial", 16)).place(x=35, y=32)
-tk.Label(card_lb, text="Papan Peringkat", font=("Arial", 12, "bold"),
-         bg="white", fg="#191b23").place(x=20, y=85)
-tk.Label(card_lb, text="Lihat peringkatmu dibandingkan\ndengan teman-teman sekolah.",
-         font=("Arial", 9), bg="white", fg="#5d5f5f", justify="left"
-         ).place(x=20, y=110)
-card_lb.bind("<Button-1>", lambda e: buka_leaderboard())
+# ---------------------------------------
+# KONTEN KANAN
+# ---------------------------------------
 
-card_progres = tk.Frame(card_area, bg="white", bd=1, relief="solid", width=360, height=160)
-card_progres.pack(side="left")
-card_progres.pack_propagate(False)
+konten = tk.Frame(frame_utama, bg="#F5F7FB")
+konten.pack(side="left", fill="both", expand=True, padx=15, pady=10)
 
-tk.Frame(card_progres, bg="#e2e2e2", width=50, height=50).place(x=20, y=20)
-tk.Label(card_progres, text="📊", bg="#e2e2e2", font=("Arial", 16)).place(x=33, y=32)
-tk.Label(card_progres, text="Progres Saya", font=("Arial", 12, "bold"),
-         bg="white", fg="#191b23").place(x=20, y=85)
-tk.Label(card_progres, text="Pantau statistik permainan dan\nkoleksi bola spesialmu.",
-         font=("Arial", 9), bg="white", fg="#5d5f5f", justify="left"
-         ).place(x=20, y=110)
-card_progres.bind("<Button-1>", lambda e: buka_progres())
+LEBAR_KONTEN = 900  # lebar tetap banner & card, mengikuti proporsi UI (tidak melebar penuh)
 
-# bar pink keluar
-tk.Button(konten, text="↪  Keluar Permainan", font=("Arial", 10, "bold"),
-          bg="#ffdad6", fg="#ba1a1a", relief="flat", command=keluar
-          ).pack(fill="x", pady=20, ipady=10)
+# ---- Banner Mulai Game ----
 
-# footer kecil
-tk.Label(root, text="Versi Desktop 1.0.4 • 2024 Studio Edukasi", font=("Arial", 8),
-         bg="#f9f9ff", fg="#9a9a9a").place(x=790, y=625)
+banner = tk.Frame(konten, bg="#1565D8", width=LEBAR_KONTEN, height=180)
+banner.pack(anchor="w")
+banner.pack_propagate(False)
+
+tk.Label(
+    banner, text="  Mainkan Sekarang  ", bg="#4F8FF7", fg="white",
+    font=("Arial", 9, "bold"), padx=6, pady=4
+).place(x=30, y=25)
+
+tk.Label(
+    banner, text="Mulai Game", bg="#1565D8", fg="white",
+    font=("Arial", 26, "bold")
+).place(x=30, y=65)
+
+tk.Label(
+    banner, text="Lanjutkan dari Level 12 dan cetak skor tertinggi.",
+    bg="#1565D8", fg="white", font=("Arial", 10)
+).place(x=30, y=115)
+
+tk.Button(
+    banner, image=icon_play, bg="#1565D8", relief="flat", bd=0,
+    activebackground="#1565D8", cursor="hand2", command=mulai_game
+).place(relx=0.94, rely=0.5, anchor="center")
+
+# ---- Card menu (klik langsung tanpa tombol, sesuai UI) ----
+
+GAP_CARD = 20
+LEBAR_CARD = (LEBAR_KONTEN - GAP_CARD) // 2
+
+card = tk.Frame(konten, bg="#F5F7FB", width=LEBAR_KONTEN, height=180)
+card.pack(anchor="w", pady=20)
+card.pack_propagate(False)
+
+def buat_card(induk, gambar, judul, deskripsi, command):
+    c = tk.Frame(induk, bg="white", bd=1, relief="solid", width=LEBAR_CARD, height=180)
+    c.pack_propagate(False)
+    isi = tk.Frame(c, bg="white")
+    isi.pack(expand=True)  # bikin konten di dalam card jadi rata tengah vertikal
+    tk.Label(isi, image=gambar, bg="white").pack(pady=(0, 10))
+    tk.Label(isi, text=judul, bg="white", font=("Arial", 13, "bold")).pack()
+    tk.Label(isi, text=deskripsi, bg="white", fg="gray", justify="center").pack(pady=(5, 0))
+    buat_card_klik(c, command)
+    return c
+
+card1 = buat_card(
+    card, gambar_trophy, "Papan Peringkat",
+    "Lihat peringkatmu dibandingkan\ndengan teman-teman sekolah.",
+    buka_leaderboard
+)
+card1.pack(side="left", padx=(0, GAP_CARD))
+
+card2 = buat_card(
+    card, gambar_progress, "Progress Saya",
+    "Pantau statistik permainan\ndan koleksi bola spesialmu.",
+    buka_progress
+)
+card2.pack(side="left")
+
+# ---------------------------------------
+# MENJALANKAN PROGRAM
+# ---------------------------------------
 
 root.mainloop()
