@@ -53,9 +53,12 @@ def buat_card_klik(frame, command):
 
 root = tk.Tk()
 root.title("Color Ball Sort Puzzle")
+
 root.geometry("1440x1024")
+root.state("zoomed")
+root.minsize(1440, 1024)
+
 root.configure(bg="#F5F7FB")
-root.resizable(False, False)
 
 # ---------------------------------------
 # PATH ASSET
