@@ -203,21 +203,21 @@ class LevelScreen(tk.Frame):
 
     def _pilih(self, id_level):
 
-    level_manager = LevelManager()
+        level_manager = LevelManager()
 
-    level_data = level_manager.get_level(id_level)
+        level_data = level_manager.get_level(id_level)
 
-    if level_data is None:
-        messagebox.showerror("Error", "Data level tidak ditemukan.")
-        return
+        if level_data is None:
+            messagebox.showerror("Error", "Data level tidak ditemukan.")
+            return
 
-    if self.on_pilih_level:
-        self.on_pilih_level(level_data)
-    else:
-        messagebox.showinfo(
-            "Level Dipilih",
-            f"Anda memilih Level {level_data['id_level']} ({level_data['nama_level']})"
-        )
+        if self.on_pilih_level:
+            self.on_pilih_level(level_data)
+        else:
+            messagebox.showinfo(
+                "Level Dipilih",
+                f"Anda memilih Level {level_data['id_level']} ({level_data['nama_level']})"
+            )
 
 # ------------------------------------------------------------
 # MODE STANDALONE (untuk testing langsung tanpa main.py)
