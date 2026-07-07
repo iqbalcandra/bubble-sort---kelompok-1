@@ -5,6 +5,7 @@ Halaman "Pilih Tingkat Kesulitan" — menampilkan 3 pilihan level
 """
 
 import tkinter as tk
+from logic.level_manager import LevelManager
 from tkinter import messagebox
 
 from screens.theme import (
@@ -17,35 +18,33 @@ from screens.theme import (
 
 LEVELS_DATA = [
     {
+        "id_level": 1,
         "tingkat": "TINGKAT 1",
         "judul": "Mudah",
         "nama_level": "Easy",
-        "deskripsi": "Cocok untuk memulai petualangan\npertamamu. Santai dan menyenangkan!",
         "warna": COLOR_PRIMARY,
         "warna_bg_icon": COLOR_PRIMARY_LIGHT,
         "bintang": 1,
     },
     {
+        "id_level": 2,
         "tingkat": "TINGKAT 2",
         "judul": "Sedang",
         "nama_level": "Medium",
-        "deskripsi": "Butuh sedikit konsentrasi lebih\nuntuk memilah semua bola berwarna.",
         "warna": COLOR_MEDIUM,
         "warna_bg_icon": COLOR_MEDIUM_LIGHT,
         "bintang": 2,
     },
     {
+        "id_level": 3,
         "tingkat": "TINGKAT 3",
         "judul": "Sulit",
         "nama_level": "Hard",
-        "deskripsi": "Hanya untuk para ahli! Banyak bola\ndan tabung yang menantang otak.",
         "warna": COLOR_HARD,
         "warna_bg_icon": COLOR_HARD_LIGHT,
         "bintang": 3,
     },
 ]
-
-
 class LevelScreen(tk.Frame):
     """
     Frame halaman pilih tingkat kesulitan.
@@ -198,15 +197,27 @@ class LevelScreen(tk.Frame):
             card, text=f"Pilih {data['judul']}", font=(FONT_FAMILY, 10, "bold"),
             bg=data["warna"], fg=COLOR_WHITE, bd=0, pady=10, cursor="hand2",
             activebackground=data["warna"], activeforeground=COLOR_WHITE,
-            command=lambda d=data: self._pilih(d["nama_level"]),
+            command=lambda d=data: self._pilih(d["id_level"]),
         ).pack(side="bottom", fill="x", padx=24, pady=24)
 
-    def _pilih(self, nama_level):
-        if self.on_pilih_level:
-            self.on_pilih_level(nama_level)
-        else:
-            messagebox.showinfo("Level Dipilih", f"Anda memilih tingkat kesulitan {nama_level}")
 
+    def _pilih(self, id_level):
+
+    level_manager = LevelManager()
+
+    level_data = level_manager.get_level(id_level)
+
+    if level_data is None:
+        messagebox.showerror("Error", "Data level tidak ditemukan.")
+        return
+
+    if self.on_pilih_level:
+        self.on_pilih_level(level_data)
+    else:
+        messagebox.showinfo(
+            "Level Dipilih",
+            f"Anda memilih Level {level_data['id_level']} ({level_data['nama_level']})"
+        )
 
 # ------------------------------------------------------------
 # MODE STANDALONE (untuk testing langsung tanpa main.py)
