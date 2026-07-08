@@ -21,6 +21,7 @@ class MenuScreen(tk.Frame):
         self.folder_aset = os.path.join(base_dir, "aset")
         self.folder_icon = os.path.join(self.folder_aset, "Icon menu utama")
 
+        # Menampilkan tampilan menu
         self.muat_aset()
         self.buat_header()
         self.buat_sidebar()
