@@ -14,7 +14,10 @@ Tidak menggunakan Tkinter.
 
 from database.queries import (
     get_progress,
-    update_progress as update_db_progress
+    update_progress as update_db_progress,
+    get_score_history,
+    get_user_rank,
+    get_total_playtime_seconds
 )
 
 
@@ -170,4 +173,43 @@ class ProgressManager:
             user_id=user_id,
             current_level="Mudah",
             best_score=0
+        )
+
+        # ==========================================
+    # AMBIL RIWAYAT PERMAINAN
+    # ==========================================
+
+    def get_riwayat(
+            self,
+            user_id
+    ):
+
+        return get_score_history(
+            user_id
+        )
+
+    # ==========================================
+    # AMBIL PERINGKAT
+    # ==========================================
+
+    def get_peringkat(
+            self,
+            user_id
+    ):
+
+        return get_user_rank(
+            user_id
+        )
+
+    # ==========================================
+    # AMBIL TOTAL WAKTU BERMAIN
+    # ==========================================
+
+    def get_total_waktu(
+            self,
+            user_id
+    ):
+
+        return get_total_playtime_seconds(
+            user_id
         )

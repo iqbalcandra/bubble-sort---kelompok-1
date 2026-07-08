@@ -181,6 +181,7 @@ class App(tk.Tk):
             from screens.progres import ProgresScreen
             self.frame = ProgresScreen(
                 self,
+                user_data=self.user_data,
                 on_kembali=self.show_menu,
                 on_lanjut_bermain=self.show_pilih_level,
             )

@@ -32,6 +32,8 @@ import os
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
+from logic.progres_manager import ProgressManager
+from database import queries
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FOLDER_ICON = os.path.join(BASE_DIR, "aset", "Icon progress")
@@ -56,8 +58,7 @@ class ProgresScreen(tk.Frame):
     def __init__(
         self,
         parent,
-        data_progres=None,
-        riwayat=None,
+        user_data,
         on_kembali=None,
         on_lanjut_bermain=None,
         on_lihat_semua_riwayat=None,
@@ -65,32 +66,83 @@ class ProgresScreen(tk.Frame):
 
         super().__init__(parent, bg=BG_COLOR)
 
-        # Data default kalau belum dikasih dari luar (nanti diganti data asli)
-        self.data_progres = data_progres or {
-            "level_terakhir": "Medium",
-            "target_berikutnya": "Hard",
-            "persen_progres": 85,
-            "skor_terbaik": "2.450",
-            "peringkat": 5,
-            "total_waktu": "24j 15m",
-            "level_selesai": "Medium",
-            "target_judul": "Selesaikan Hard Mode",
+        self.user_data = user_data
+
+        self.progress_manager = ProgressManager()
+
+        progress = self.progress_manager.get_progress_pemain(
+            self.user_data["id"]
+        )
+
+        # Jika pemain baru
+        if progress is None:
+            progress = {
+                "current_level": "Mudah",
+                "best_score": 0
+            }
+
+        riwayat = queries.get_score_history(
+            self.user_data["id"]
+        )
+
+        if riwayat is None:
+            riwayat = []
+
+        peringkat = queries.get_user_rank(
+            self.user_data["id"]
+        )
+
+        if peringkat is None:
+            peringkat = "-"
+
+        jumlah_main = queries.get_total_playtime_seconds(
+            self.user_data["id"]
+        )
+
+        if jumlah_main is None:
+            jumlah_main = 0
+
+        jam = jumlah_main // 3600
+        menit = (jumlah_main % 3600) // 60
+
+        current = progress["current_level"]
+
+        if current == "Mudah":
+            target = "Sedang"
+            persen = 33
+        elif current == "Sedang":
+            target = "Sulit"
+            persen = 66
+        else:
+            target = "Selesai"
+            persen = 100
+
+        self.data_progres = {
+            "level_terakhir": current,
+            "target_berikutnya": target,
+            "persen_progres": persen,
+            "skor_terbaik": progress["best_score"],
+            "peringkat": peringkat,
+            "total_waktu": f"{jam}j {menit}m",
+            "level_selesai": current,
+            "target_judul": f"Selesaikan level {target}",
         }
 
-        self.riwayat = riwayat or [
-            {
-                "level": "Medium - Berhasil",
-                "waktu": "Hari ini, 14:20",
-                "skor": "450 Pts",
-                "durasi": "03:45",
-            },
-            {
-                "level": "Easy - Berhasil",
-                "waktu": "Kemarin, 18:12",
-                "skor": "420 Pts",
-                "durasi": "04:12",
-            },
-        ]
+        self.riwayat = []
+
+        for item in riwayat:
+
+            waktu = item["waktu_bermain"]
+
+            if hasattr(waktu, "strftime"):
+                waktu = waktu.strftime("%d/%m/%Y %H:%M")
+
+            self.riwayat.append({
+                "level": item["level_reached"],
+                "waktu": str(waktu),
+                "skor": f'{item["score"]} Pts',
+                "durasi": "-"
+            })
 
         self.on_kembali = on_kembali
         self.on_lanjut_bermain = on_lanjut_bermain
@@ -102,6 +154,7 @@ class ProgresScreen(tk.Frame):
     # ------------------------------------------------------------
     # ASET
     # ------------------------------------------------------------
+
     def _muat_aset(self):
         # Hanya 3 file ikon ini yang tersedia di folder aset/Icon progress
         self.icon_waktu = _muat("Icon waktu.png", (18, 18))
@@ -365,6 +418,14 @@ if __name__ == "__main__":
     root.state("zoomed")
     root.configure(bg=BG_COLOR)
 
-    ProgresScreen(root).pack(fill="both", expand=True)
+    dummy_user = {
+        "id": 1,
+        "username": "Admin"
+    }
+
+    ProgresScreen(
+        root,
+        user_data=dummy_user
+    ).pack(fill="both", expand=True)
 
     root.mainloop()
