@@ -1,249 +1,175 @@
 """
-level_screen.py
-Halaman "Pilih Tingkat Kesulitan" — menampilkan 3 pilihan level
-(Mudah/Sedang/Sulit) sesuai desain UI (kanvas 1440x1024 desktop).
+screens/level_screen.py
+
+Halaman "Pilih Tingkat Kesulitan" - menampilkan 3 card level (Mudah/Sedang/
+Sulit) sesuai desain Figma. Level ditampilkan DINAMIS dari database (bukan
+hardcode 3 card), supaya kalau nanti ditambah level baru di tabel `levels`,
+halaman ini otomatis menyesuaikan tanpa perlu ubah kode.
+
+Status lock/unlock dihitung dari logic/level_manager.py (is_level_terbuka),
+berdasarkan current_level yang tersimpan di progress pemain.
 """
 
 import tkinter as tk
+
 from logic.level_manager import LevelManager
-from tkinter import messagebox
+from logic.progress_manager import ProgressManager
+from theme import BG_COLOR, CARD_COLOR, PRIMARY_BLUE, TEXT_DARK, TEXT_MUTED, LEVEL_BADGE_COLOR
 
-from screens.theme import (
-    COLOR_BG, COLOR_WHITE, COLOR_PRIMARY, COLOR_PRIMARY_LIGHT,
-    COLOR_MEDIUM, COLOR_MEDIUM_LIGHT, COLOR_HARD, COLOR_HARD_LIGHT,
-    COLOR_TEXT_DARK, COLOR_TEXT_GRAY, COLOR_BORDER,
-    FONT_FAMILY, FONT_TITLE, FONT_SUBTITLE, FONT_LOGO,
-    WINDOW_WIDTH, WINDOW_HEIGHT, SIDEBAR_WIDTH,
-)
+# Deskripsi tiap level (belum ada kolomnya di tabel `levels`, jadi disimpan
+# di sini per nama level, sesuai teks di desain Figma)
+DESKRIPSI_LEVEL = {
+    "Mudah": "Cocok untuk memulai petualangan pertamamu. Santai dan menyenangkan!",
+    "Sedang": "Butuh sedikit konsentrasi lebih untuk memilah semua bola berwarna.",
+    "Sulit": "Hanya untuk para ahli! Banyak bola dan tabung yang menantang otak.",
+}
 
-LEVELS_DATA = [
-    {
-        "id_level": 1,
-        "tingkat": "TINGKAT 1",
-        "judul": "Mudah",
-        "nama_level": "Easy",
-        "warna": COLOR_PRIMARY,
-        "warna_bg_icon": COLOR_PRIMARY_LIGHT,
-        "bintang": 1,
-    },
-    {
-        "id_level": 2,
-        "tingkat": "TINGKAT 2",
-        "judul": "Sedang",
-        "nama_level": "Medium",
-        "warna": COLOR_MEDIUM,
-        "warna_bg_icon": COLOR_MEDIUM_LIGHT,
-        "bintang": 2,
-    },
-    {
-        "id_level": 3,
-        "tingkat": "TINGKAT 3",
-        "judul": "Sulit",
-        "nama_level": "Hard",
-        "warna": COLOR_HARD,
-        "warna_bg_icon": COLOR_HARD_LIGHT,
-        "bintang": 3,
-    },
-]
+WARNA_ABU_TERKUNCI = "#D9D9D9"
+TEKS_ABU_TERKUNCI = "#9A9A9A"
+
+
 class LevelScreen(tk.Frame):
-    """
-    Frame halaman pilih tingkat kesulitan.
-    Bisa dipasang di dalam window utama (main.py) dengan sistem
-    berpindah-pindah frame, atau dijalankan berdiri sendiri untuk testing.
+    def __init__(self, parent, user_data, on_pilih_level=None, on_kembali=None):
+        """
+        :param user_data: dict {"id", "username", ...}
+        :param on_pilih_level: callback(level_data: dict) -> mulai game di level itu
+        :param on_kembali: callback() -> kembali ke menu utama
+        """
+        super().__init__(parent, bg=BG_COLOR)
 
-    Parameter:
-        parent          : widget induk (Tk atau Frame container)
-        user_data       : dict berisi info user login, contoh:
-                           {"username": "Pemain Muda", "level": 12}
-        on_pilih_level  : callback(nama_level: str) dipanggil saat kartu level dipilih
-        on_navigate     : callback(tujuan: str) untuk navigasi sidebar
-                           (mis. "beranda", "leaderboard", "progress", "keluar")
-    """
-
-    def __init__(self, parent, user_data=None, on_pilih_level=None, on_navigate=None):
-        super().__init__(parent, bg=COLOR_BG)
-        self.user_data = user_data or {"username": "Pemain Muda", "level": 12}
+        self.user_data = user_data
         self.on_pilih_level = on_pilih_level
-        self.on_navigate = on_navigate
+        self.on_kembali = on_kembali
 
-        self._build_sidebar()
-        self._build_main_content()
+        self.level_manager = LevelManager()
+        self.progress_manager = ProgressManager()
+
+        self._muat_data()
+
+        self._build_header()
+        self._build_konten()
 
     # ------------------------------------------------------------
-    # SIDEBAR
+    # AMBIL DATA
     # ------------------------------------------------------------
-    def _build_sidebar(self):
-        sidebar = tk.Frame(self, bg=COLOR_WHITE, width=SIDEBAR_WIDTH)
-        sidebar.pack(side="left", fill="y")
-        sidebar.pack_propagate(False)
+    def _muat_data(self):
+        self.semua_level = self.level_manager.get_semua_level()
 
-        # Profil pemain
-        profil_frame = tk.Frame(sidebar, bg=COLOR_WHITE)
-        profil_frame.pack(fill="x", padx=24, pady=(28, 20))
+        progress = self.progress_manager.get_progress_pemain(self.user_data["id"])
+        self.current_level_pemain = progress["current_level"] if progress else "Mudah"
 
-        avatar = tk.Label(
-            profil_frame, text="🧑", font=(FONT_FAMILY, 22),
-            bg=COLOR_PRIMARY_LIGHT, fg=COLOR_PRIMARY,
-            width=2, height=1, relief="solid", bd=1,
-        )
-        avatar.grid(row=0, column=0, rowspan=2, padx=(0, 10))
+    # ------------------------------------------------------------
+    # HEADER
+    # ------------------------------------------------------------
+    def _build_header(self):
+        header = tk.Frame(self, bg=BG_COLOR)
+        header.pack(fill="x", padx=30, pady=20)
 
-        tk.Label(
-            profil_frame, text=self.user_data.get("username", "Pemain Muda"),
-            font=(FONT_FAMILY, 11, "bold"), fg=COLOR_PRIMARY, bg=COLOR_WHITE,
-        ).grid(row=0, column=1, sticky="w")
-        tk.Label(
-            profil_frame, text=f"Level {self.user_data.get('level', 1)}",
-            font=(FONT_FAMILY, 9), fg=COLOR_TEXT_GRAY, bg=COLOR_WHITE,
-        ).grid(row=1, column=1, sticky="w")
-
-        # Menu navigasi
-        self._nav_button(sidebar, "🏠  Beranda", "beranda", active=True)
-        self._nav_button(sidebar, "🏆  Papan Peringkat", "leaderboard")
-        self._nav_button(sidebar, "🎖  Progress", "progress")
-
-        # Tombol keluar di bagian bawah
-        keluar_frame = tk.Frame(sidebar, bg=COLOR_WHITE)
-        keluar_frame.pack(side="bottom", fill="x", padx=24, pady=24)
         tk.Button(
-            keluar_frame, text="⏻  Keluar", font=(FONT_FAMILY, 10, "bold"),
-            fg="#DC2626", bg=COLOR_WHITE, bd=0, cursor="hand2",
-            activebackground=COLOR_WHITE, activeforeground="#DC2626",
-            anchor="w", command=lambda: self._navigate("keluar"),
-        ).pack(fill="x")
-
-    def _nav_button(self, parent, text, target, active=False):
-        bg = COLOR_PRIMARY if active else COLOR_WHITE
-        fg = COLOR_WHITE if active else COLOR_TEXT_DARK
-        btn = tk.Button(
-            parent, text=text, font=(FONT_FAMILY, 11, "bold" if active else "normal"),
-            bg=bg, fg=fg, bd=0, anchor="w", padx=16, pady=10, cursor="hand2",
-            activebackground=bg, activeforeground=fg,
-            command=lambda: self._navigate(target),
-        )
-        btn.pack(fill="x", padx=16, pady=3)
-
-    def _navigate(self, target):
-        if target == "keluar":
-            jawab = messagebox.askyesno("Keluar", "Apakah kamu yakin ingin keluar?")
-            if not jawab:
-                return
-        if self.on_navigate:
-            self.on_navigate(target)
-
-    # ------------------------------------------------------------
-    # MAIN CONTENT
-    # ------------------------------------------------------------
-    def _build_main_content(self):
-        content = tk.Frame(self, bg=COLOR_BG)
-        content.pack(side="left", fill="both", expand=True)
-
-        # Judul
-        tk.Label(
-            content, text="Pilih Tingkat Kesulitan",
-            font=FONT_TITLE, bg=COLOR_BG, fg=COLOR_TEXT_DARK,
-        ).pack(pady=(70, 6))
+            header, text="\u2190", font=("Arial", 14, "bold"), bg=BG_COLOR,
+            fg=PRIMARY_BLUE, relief="flat", command=self._klik_kembali,
+        ).pack(side="left", padx=(0, 12))
 
         tk.Label(
-            content, text="Tentukan tantanganmu hari ini dan mulailah bermain!",
-            font=FONT_SUBTITLE, bg=COLOR_BG, fg=COLOR_TEXT_GRAY,
-        ).pack()
+            header, text="Color Ball Sort Puzzle", font=("Arial", 16, "bold"),
+            bg=BG_COLOR, fg=PRIMARY_BLUE,
+        ).pack(side="left")
 
-        # Container kartu level
-        card_container = tk.Frame(content, bg=COLOR_BG)
-        card_container.pack(pady=60)
+        tk.Label(
+            header, text="\u2699", font=("Arial", 14), bg=BG_COLOR, fg="#333333",
+        ).pack(side="right")
 
-        for data in LEVELS_DATA:
-            self._buat_card(card_container, data)
+    # ------------------------------------------------------------
+    # KONTEN UTAMA
+    # ------------------------------------------------------------
+    def _build_konten(self):
+        tk.Label(
+            self, text="Pilih Tingkat Kesulitan", font=("Arial", 26, "bold"),
+            bg=BG_COLOR, fg=TEXT_DARK,
+        ).pack(pady=(10, 4))
 
-    def _buat_card(self, parent, data):
+        tk.Label(
+            self, text="Tentukan tantanganmu hari ini dan mulailah bermain!",
+            font=("Arial", 11), bg=BG_COLOR, fg=TEXT_MUTED,
+        ).pack(pady=(0, 30))
+
+        area_card = tk.Frame(self, bg=BG_COLOR)
+        area_card.pack()
+
+        for level_data in self.semua_level:
+            terbuka = self.level_manager.is_level_terbuka(
+                level_data["id_level"], self.current_level_pemain
+            )
+            self._build_card_level(area_card, level_data, terbuka)
+
+    def _build_card_level(self, parent, level_data, terbuka: bool):
+        nama_level = level_data["nama_level"]
+        id_level = level_data["id_level"]
+
+        warna_tema = LEVEL_BADGE_COLOR.get(nama_level, PRIMARY_BLUE)
+        warna_aktif = warna_tema if terbuka else WARNA_ABU_TERKUNCI
+        warna_teks = TEXT_DARK if terbuka else TEKS_ABU_TERKUNCI
+
         card = tk.Frame(
-            parent, bg=COLOR_WHITE, width=260, height=340,
-            highlightbackground=COLOR_BORDER, highlightthickness=1,
+            parent, bg=CARD_COLOR, highlightbackground=warna_aktif,
+            highlightthickness=2, width=320, height=380,
         )
-        card.pack(side="left", padx=18)
+        card.pack(side="left", padx=16)
         card.pack_propagate(False)
 
-        # Ikon bintang dalam lingkaran
-        icon_wrap = tk.Label(
-            card, text="★" * data["bintang"],
-            font=(FONT_FAMILY, 16, "bold"),
-            bg=data["warna_bg_icon"], fg=data["warna"],
-            width=4, height=2,
-        )
-        icon_wrap.pack(pady=(30, 14))
+        # --- Icon lingkaran + bintang sesuai id_level ---
+        canvas_icon = tk.Canvas(card, width=80, height=80, bg=CARD_COLOR, highlightthickness=0)
+        canvas_icon.pack(pady=(30, 10))
+        canvas_icon.create_oval(5, 5, 75, 75, fill=warna_aktif if terbuka else "#EDEDED", outline="")
 
-        # Badge tingkat
-        badge = tk.Label(
-            card, text=data["tingkat"], font=(FONT_FAMILY, 8, "bold"),
-            bg=data["warna_bg_icon"], fg=data["warna"], padx=10, pady=3,
-        )
-        badge.pack(pady=(0, 8))
+        if terbuka:
+            bintang = "\u2B50" * id_level
+            canvas_icon.create_text(40, 40, text=bintang, font=("Arial", 12))
+        else:
+            canvas_icon.create_text(40, 40, text="\U0001F512", font=("Arial", 20))
 
-        # Judul level
+        # --- Badge "TINGKAT n" ---
         tk.Label(
-            card, text=data["judul"], font=(FONT_FAMILY, 20, "bold"),
-            bg=COLOR_WHITE, fg=COLOR_TEXT_DARK,
+            card, text=f"TINGKAT {id_level}", font=("Arial", 8, "bold"),
+            bg=warna_aktif if terbuka else "#EDEDED",
+            fg="white" if terbuka else TEKS_ABU_TERKUNCI,
+            padx=10, pady=2,
+        ).pack(pady=(0, 10))
+
+        # --- Nama level ---
+        tk.Label(
+            card, text=nama_level, font=("Arial", 20, "bold"),
+            bg=CARD_COLOR, fg=warna_teks,
         ).pack()
 
-        # Deskripsi
+        # --- Deskripsi ---
+        deskripsi = DESKRIPSI_LEVEL.get(nama_level, "")
         tk.Label(
-            card, text=data["deskripsi"], font=(FONT_FAMILY, 9),
-            bg=COLOR_WHITE, fg=COLOR_TEXT_GRAY, justify="center", wraplength=210,
-        ).pack(pady=(10, 0))
+            card, text=deskripsi, font=("Arial", 9), bg=CARD_COLOR,
+            fg=warna_teks, wraplength=260, justify="center",
+        ).pack(pady=(8, 20), padx=16)
 
-        # Tombol pilih
-        tk.Button(
-            card, text=f"Pilih {data['judul']}", font=(FONT_FAMILY, 10, "bold"),
-            bg=data["warna"], fg=COLOR_WHITE, bd=0, pady=10, cursor="hand2",
-            activebackground=data["warna"], activeforeground=COLOR_WHITE,
-            command=lambda d=data: self._pilih(d["id_level"]),
-        ).pack(side="bottom", fill="x", padx=24, pady=24)
+        # --- Tombol ---
+        if terbuka:
+            tk.Button(
+                card, text=f"Pilih {nama_level}", font=("Arial", 11, "bold"),
+                bg=warna_tema, fg="white", relief="flat", width=20, pady=8,
+                command=lambda ld=level_data: self._klik_pilih_level(ld),
+            ).pack(side="bottom", pady=20)
+        else:
+            tk.Button(
+                card, text="\U0001F512 Terkunci", font=("Arial", 11, "bold"),
+                bg="#EDEDED", fg=TEKS_ABU_TERKUNCI, relief="flat", width=20, pady=8,
+                state="disabled",
+            ).pack(side="bottom", pady=20)
 
-
-    def _pilih(self, id_level):
-
-        level_manager = LevelManager()
-
-        level_data = level_manager.get_level(id_level)
-
-        if level_data is None:
-            messagebox.showerror("Error", "Data level tidak ditemukan.")
-            return
-
+    # ------------------------------------------------------------
+    # AKSI
+    # ------------------------------------------------------------
+    def _klik_pilih_level(self, level_data):
         if self.on_pilih_level:
             self.on_pilih_level(level_data)
-        else:
-            messagebox.showinfo(
-                "Level Dipilih",
-                f"Anda memilih Level {level_data['id_level']} ({level_data['nama_level']})"
-            )
 
-# ------------------------------------------------------------
-# MODE STANDALONE (untuk testing langsung tanpa main.py)
-# ------------------------------------------------------------
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Pilih Tingkat Kesulitan")
-    root.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
-    root.resizable(False, False)
-    root.configure(bg=COLOR_BG)
-
-    def contoh_pilih_level(nama_level):
-        messagebox.showinfo("Level Dipilih", f"Anda memilih tingkat kesulitan {nama_level}")
-
-    def contoh_navigate(target):
-        if target == "keluar":
-            root.destroy()
-        else:
-            messagebox.showinfo("Navigasi", f"Pindah ke halaman: {target}")
-
-    screen = LevelScreen(
-        root,
-        user_data={"username": "Pemain Muda", "level": 12},
-        on_pilih_level=contoh_pilih_level,
-        on_navigate=contoh_navigate,
-    )
-    screen.pack(fill="both", expand=True)
-
-    root.mainloop()
+    def _klik_kembali(self):
+        if self.on_kembali:
+            self.on_kembali()
