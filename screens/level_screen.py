@@ -55,8 +55,7 @@ class LevelScreen(tk.Frame):
     def _muat_data(self):
         self.semua_level = self.level_manager.get_semua_level()
 
-        progress = self.progress_manager.get_progress_pemain(
-            self.user_data["id"])
+        progress = self.progress_manager.get_progress_pemain(self.user_data["id"])
         self.current_level_pemain = progress["current_level"] if progress else "Mudah"
 
     # ------------------------------------------------------------
@@ -119,18 +118,15 @@ class LevelScreen(tk.Frame):
         card.pack_propagate(False)
 
         # --- Icon lingkaran + bintang sesuai id_level ---
-        canvas_icon = tk.Canvas(card, width=80, height=80,
-                                bg=CARD_COLOR, highlightthickness=0)
+        canvas_icon = tk.Canvas(card, width=80, height=80, bg=CARD_COLOR, highlightthickness=0)
         canvas_icon.pack(pady=(30, 10))
-        canvas_icon.create_oval(
-            5, 5, 75, 75, fill=warna_aktif if terbuka else "#EDEDED", outline="")
+        canvas_icon.create_oval(5, 5, 75, 75, fill=warna_aktif if terbuka else "#EDEDED", outline="")
 
         if terbuka:
             bintang = "\u2B50" * id_level
             canvas_icon.create_text(40, 40, text=bintang, font=("Arial", 12))
         else:
-            canvas_icon.create_text(
-                40, 40, text="\U0001F512", font=("Arial", 20))
+            canvas_icon.create_text(40, 40, text="\U0001F512", font=("Arial", 20))
 
         # --- Badge "TINGKAT n" ---
         tk.Label(
