@@ -8,16 +8,16 @@ from PIL import Image, ImageTk
 # ---------------------------------------
 
 def mulai_game():
-    messagebox.showinfo("Mulai Game", "Membuka halaman pemilihan level...")
+    print("Menuju halaman level...")
 
 def buka_leaderboard():
-    messagebox.showinfo("Leaderboard", "Halaman leaderboard akan dibuka.")
+    print("Menuju leaderboard...")
 
 def buka_progress():
-    messagebox.showinfo("Progress", "Halaman progress akan dibuka.")
+    print("Menuju progress...")
 
 def buka_setting():
-    messagebox.showinfo("Pengaturan", "Halaman pengaturan akan dibuka.")
+    print("Menuju pengaturan...")
 
 def keluar():
     if messagebox.askyesno("Keluar", "Apakah Anda yakin ingin keluar?"):
@@ -59,6 +59,7 @@ root.state("zoomed")
 root.minsize(1440, 1024)
 
 root.configure(bg="#F5F7FB")
+root.resizable(False, False)
 
 # ---------------------------------------
 # PATH ASSET
@@ -67,6 +68,8 @@ root.configure(bg="#F5F7FB")
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 folder_aset = os.path.join(BASE_DIR, "aset")
 folder_icon = os.path.join(folder_aset, "Icon menu utama")
+
+# Memuat gambar dari folder aset
 
 def muat(path, size=None):
     img = Image.open(path)
@@ -158,25 +161,53 @@ banner = tk.Frame(konten, bg="#1565D8", width=LEBAR_KONTEN, height=180)
 banner.pack(anchor="w")
 banner.pack_propagate(False)
 
-tk.Label(
-    banner, text="  Mainkan Sekarang  ", bg="#4F8FF7", fg="white",
-    font=("Arial", 9, "bold"), padx=6, pady=4
-).place(x=30, y=25)
+banner.bind("<Button-1>", lambda e: mulai_game())
+banner.configure(cursor="hand2")
 
-tk.Label(
-    banner, text="Mulai Game", bg="#1565D8", fg="white",
+label_badge = tk.Label(
+    banner,
+    text="  Mainkan Sekarang  ",
+    bg="#4F8FF7",
+    fg="white",
+    font=("Arial", 9, "bold"),
+    padx=6,
+    pady=4
+)
+label_badge.place(x=30, y=25)
+
+label_judul = tk.Label(
+    banner,
+    text="Mulai Game",
+    bg="#1565D8",
+    fg="white",
     font=("Arial", 26, "bold")
-).place(x=30, y=65)
+)
+label_judul.place(x=30, y=65)
 
-tk.Label(
-    banner, text="Lanjutkan dari Level 12 dan cetak skor tertinggi.",
-    bg="#1565D8", fg="white", font=("Arial", 10)
-).place(x=30, y=115)
+label_deskripsi = tk.Label(
+    banner,
+    text="Lanjutkan dari Level 12 dan cetak skor tertinggi.",
+    bg="#1565D8",
+    fg="white",
+    font=("Arial", 10)
+)
+label_deskripsi.place(x=30, y=115)
+
+for widget in (label_badge, label_judul, label_deskripsi):
+    widget.bind("<Button-1>", lambda e: mulai_game())
+    widget.configure(cursor="hand2")
 
 tk.Button(
-    banner, image=icon_play, bg="#1565D8", relief="flat", bd=0,
-    activebackground="#1565D8", cursor="hand2", command=mulai_game
+    banner,
+    image=icon_play,
+    bg="#1565D8",
+    relief="flat",
+    bd=0,
+    activebackground="#1565D8",
+    cursor="hand2",
+    command=mulai_game
 ).place(relx=0.94, rely=0.5, anchor="center")
+
 
 # ---- Card menu (klik langsung tanpa tombol, sesuai UI) ----
 
