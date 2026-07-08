@@ -139,14 +139,6 @@ class ProgresScreen(tk.Frame):
             command=self._klik_kembali,
         ).pack(side="left")
 
-        tk.Label(
-            header,
-            text="⚙",
-            bg=BG_COLOR,
-            fg="gray",
-            font=("Arial", 14),
-        ).pack(side="right")
-
     # ---------------- CARD ATAS (LEVEL + SKOR) ----------------
 
     def _build_card_atas(self, main):
