@@ -161,8 +161,8 @@ def simpan_skor(user_id: int, score: int, level_reached: str) -> bool:
     return insert_score(user_id, score, level_reached)
 
 
-def get_top_scores(limit: int = 10):
-    """Mengambil top-N skor tertinggi beserta nama pemain untuk leaderboard."""
+def get_top_scores(limit: int = 5):
+    """Mengambil top-N skor tertinggi beserta nama pemain untuk leaderboard (default Top 5)."""
     conn = get_connection()
     if conn is None:
         return []
