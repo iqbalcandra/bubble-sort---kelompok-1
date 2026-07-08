@@ -1,186 +1,94 @@
 import tkinter as tk
-from tkinter import messagebox
 
 from screens.loginscreen import LoginScreen
 from screens.menu_screen import MenuScreen
-from screens.level_screen import LevelScreen
-from screens.leaderboard import LeaderboardScreen
-from screens.progres import ProgressScreen
-
-# nanti menyusul
-# from screens.game_screen import GameScreen
-# from screens.levelselesai import LevelSelesaiScreen
-# from screens.gameover import GameOverScreen
-
-from theme import (
-    LEBAR_WINDOW,
-    TINGGI_WINDOW,
-    BG_COLOR
-)
 
 
 class App(tk.Tk):
-
     def __init__(self):
         super().__init__()
-
         self.title("Color Ball Sort Puzzle")
-        self.geometry(f"{LEBAR_WINDOW}x{TINGGI_WINDOW}")
+        self.geometry("1440x1024")
         self.state("zoomed")
-        self.minsize(LEBAR_WINDOW, TINGGI_WINDOW)
-
-        self.configure(bg=BG_COLOR)
-        self.resizable(False, False)
-
-        self.frame = None
-
-        # sementara user dummy
-        self.user = {
-            "id": 1,
-            "username": "Player"
-        }
-
+        self.configure(bg="#F5F7FB")
+        self.frame=None
         self.show_login()
 
-    # -----------------------------
-    # ganti halaman
-    # -----------------------------
-
+    # ---------------------------------------
+    # GANTI HALAMAN
+    # ---------------------------------------
     def clear_frame(self):
-        if self.frame:
+        if self.frame is not None:
             self.frame.destroy()
 
-                # -----------------------------
+    # ---------------------------------------
     # LOGIN
-    # -----------------------------
-
+    # ---------------------------------------
     def show_login(self):
-
         self.clear_frame()
+        self.frame=LoginScreen(self,on_login=self.show_menu)
+        self.frame.pack(fill="both",expand=True)
 
-        self.frame = LoginScreen(
-            self,
-            on_login=self.show_menu
-        )
-
-        self.frame.pack(fill="both", expand=True)
-
-    # -----------------------------
+    # ---------------------------------------
     # MENU
-    # -----------------------------
-
+    # ---------------------------------------
     def show_menu(self):
-
         self.clear_frame()
-
-        self.frame = MenuScreen(
+        self.frame=MenuScreen(
             self,
-            on_mulai=self.show_level,
+            on_mulai=self.show_game,
             on_leaderboard=self.show_leaderboard,
             on_progress=self.show_progress,
             on_setting=self.show_setting,
-            on_logout=self.logout
+            on_logout=self.show_login
         )
+        self.frame.pack(fill="both",expand=True)
 
-        self.frame.pack(fill="both", expand=True)
-
-            # -----------------------------
-    # LEVEL
-    # -----------------------------
-
-    def show_level(self):
-
+    def _placeholder(self,judul):
         self.clear_frame()
+        f=tk.Frame(self,bg="#F5F7FB")
+        tk.Label(f,text=judul,font=("Arial",28,"bold"),bg="#F5F7FB").pack(pady=40)
+        tk.Button(f,text="Kembali ke Menu",command=self.show_menu).pack()
+        f.pack(fill="both",expand=True)
+        self.frame=f
 
-        self.frame = LevelScreen(
-            self,
-            on_kembali=self.show_menu,
-            on_mulai=self.show_game
-        )
-
-        self.frame.pack(fill="both", expand=True)
-
-    # -----------------------------
-    # GAME
-    # -----------------------------
-
-    def show_game(self, level=None):
-
-        self.clear_frame()
-
-        messagebox.showinfo(
-            "Info",
-            "Game Screen belum dihubungkan."
-        )
-
-        # Nanti diganti menjadi:
-        #
-        # self.frame = GameScreen(
-        #     self,
-        #     level=level,
-        #     on_selesai=self.show_level_selesai,
-        #     on_game_over=self.show_game_over
-        # )
-        #
-        # self.frame.pack(fill="both", expand=True)
-
-    # -----------------------------
-    # LEADERBOARD
-    # -----------------------------
+    def show_game(self):
+        try:
+            from screens.game_screen import GameScreen
+            self.clear_frame()
+            self.frame=GameScreen(self)
+            self.frame.pack(fill="both",expand=True)
+        except Exception:
+            self._placeholder("Game Screen")
 
     def show_leaderboard(self):
-
-        self.clear_frame()
-
-        self.frame = LeaderboardScreen(
-            self,
-            on_kembali=self.show_menu
-        )
-
-        self.frame.pack(fill="both", expand=True)
-
-    # -----------------------------
-    # PROGRESS
-    # -----------------------------
+        try:
+            from screens.leaderboard_screen import LeaderboardScreen
+            self.clear_frame()
+            self.frame=LeaderboardScreen(self)
+            self.frame.pack(fill="both",expand=True)
+        except Exception:
+            self._placeholder("Leaderboard")
 
     def show_progress(self):
-
-        self.clear_frame()
-
-        self.frame = ProgressScreen(
-            self,
-            on_kembali=self.show_menu
-        )
-
-        self.frame.pack(fill="both", expand=True)
-
-    # -----------------------------
-    # SETTING
-    # -----------------------------
+        try:
+            from screens.progress_screen import ProgressScreen
+            self.clear_frame()
+            self.frame=ProgressScreen(self)
+            self.frame.pack(fill="both",expand=True)
+        except Exception:
+            self._placeholder("Progress")
 
     def show_setting(self):
+        try:
+            from screens.setting_screen import SettingScreen
+            self.clear_frame()
+            self.frame=SettingScreen(self)
+            self.frame.pack(fill="both",expand=True)
+        except Exception:
+            self._placeholder("Setting")
 
-        messagebox.showinfo(
-            "Pengaturan",
-            "Halaman pengaturan masih dalam pengembangan."
-        )
 
-    # -----------------------------
-    # LOGOUT
-    # -----------------------------
-
-    def logout(self):
-
-        if messagebox.askyesno(
-            "Keluar",
-            "Apakah ingin kembali ke halaman login?"
-        ):
-            self.show_login()
-
-# -----------------------------
-# MENJALANKAN PROGRAM
-# -----------------------------
-
-if __name__ == "__main__":
-    app = App()
+if __name__=="__main__":
+    app=App()
     app.mainloop()
