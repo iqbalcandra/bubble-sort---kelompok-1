@@ -12,7 +12,8 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 
 
-class LoginScreen:                          # class utama halaman Login & Register
+# class utama halaman Login & Register
+class LoginScreen(tk.Frame):
 
     # constructor, dijalankan otomatis saat LoginScreen() dibuat
     def __init__(self):
