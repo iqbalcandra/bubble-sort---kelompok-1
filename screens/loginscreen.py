@@ -12,6 +12,7 @@ import sys
 root = tk.Tk()
 root.title("Color Ball Sort Puzzle")
 root.geometry("1100x650")
+root.state("zoomed")
 root.configure(bg="#F5F5F5")
 root.resizable(False, False)
 
