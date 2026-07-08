@@ -18,10 +18,9 @@ CATATAN PERBAIKAN:
   (nama file & class yang benar: ProgressManager).
 """
 
-
+import os
 import tkinter as tk
 from tkinter import messagebox
-
 
 
 # ================================
@@ -103,6 +102,10 @@ class GameScreen(tk.Frame):
 
 
         self.colors = []
+        
+        self.images = {}
+        
+        self.load_assets()
 
 
 
@@ -125,13 +128,94 @@ class GameScreen(tk.Frame):
         self.start_level()
 
 
+    def load_assets(self):
 
+        base_dir = os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__))
+        )
+
+        folder_game = os.path.join(
+            base_dir,
+            "aset",
+            "Gambar dan icon halaman permainan"
+        )
+
+
+        print("======================")
+        print("CEK ASSET GAME")
+        print(folder_game)
+        print("======================")
+
+
+        def load(nama):
+
+            path = os.path.join(
+                folder_game,
+                nama
+            )
+
+            if os.path.exists(path):
+
+                print("BERHASIL :", nama)
+
+                return tk.PhotoImage(
+                    file=path
+                )
+
+            else:
+
+                print("TIDAK DITEMUKAN :", nama)
+
+                return None
+
+
+
+        self.images["merah"] = load(
+            "Bola_merah.png"
+        )
+
+        self.images["biru"] = load(
+            "Bola_biru.png"
+        )
+
+        self.images["kuning"] = load(
+            "Bola_kuning.png"
+        )
+
+
+        self.images["tabung"] = load(
+            "Tabung.png"
+        )
+
+
+        self.images["timer"] = load(
+            "Icon Timer.png"
+        )
+
+        self.images["score"] = load(
+            "Icon Score.png"
+        )
+
+        self.images["undo"] = load(
+            "Icon Undo.png"
+        )
+
+        self.images["reset"] = load(
+            "Icon Reset.png"
+        )
+
+        self.images["menu"] = load(
+            "Icon Menu.png"
+        )
+
+
+        print("SELESAI LOAD ASSET")
+        
     # =================================================
     # HEADER
     # =================================================
 
     def create_header(self):
-
 
         header = tk.Frame(
             self,
@@ -144,6 +228,10 @@ class GameScreen(tk.Frame):
             padx=30
         )
 
+
+        # ==========================
+        # JUDUL GAME
+        # ==========================
 
         self.title_label = tk.Label(
             header,
@@ -158,9 +246,70 @@ class GameScreen(tk.Frame):
         )
 
 
+        # ==========================
+        # AREA SCORE
+        # ==========================
+
+        score_frame = tk.Frame(
+            header,
+            bg=BG_COLOR
+        )
+
+        score_frame.pack(
+            side="right",
+            padx=20
+        )
+
+
+        tk.Label(
+            score_frame,
+            image=self.images.get("score"),
+            bg=BG_COLOR
+        ).pack(
+            side="left"
+        )
+
+
+        self.score_label = tk.Label(
+            score_frame,
+            text="0",
+            font=("Arial",14,"bold"),
+            bg=BG_COLOR,
+            fg=TEXT_DARK
+        )
+
+        self.score_label.pack(
+            side="left",
+            padx=5
+        )
+
+
+        # ==========================
+        # AREA TIMER
+        # ==========================
+
+        timer_frame = tk.Frame(
+            header,
+            bg=BG_COLOR
+        )
+
+        timer_frame.pack(
+            side="right",
+            padx=20
+        )
+
+
+        tk.Label(
+            timer_frame,
+            image=self.images.get("timer"),
+            bg=BG_COLOR
+        ).pack(
+            side="left"
+        )
+
 
         self.timer_label = tk.Label(
-            header,
+            timer_frame,
             text="02:00",
             font=("Arial",16,"bold"),
             bg=BG_COLOR,
@@ -168,26 +317,9 @@ class GameScreen(tk.Frame):
         )
 
         self.timer_label.pack(
-            side="right",
-            padx=20
+            side="left",
+            padx=5
         )
-
-
-
-        self.score_label = tk.Label(
-            header,
-            text="Score : 0",
-            font=("Arial",14,"bold"),
-            bg=BG_COLOR,
-            fg=TEXT_DARK
-        )
-
-        self.score_label.pack(
-            side="right"
-        )
-
-
-
     # =================================================
     # TOOLBAR
     # =================================================
@@ -211,8 +343,9 @@ class GameScreen(tk.Frame):
 
         self.undo_button = tk.Button(
             toolbar,
-            text="↶ Undo",
-            width=12,
+            image=self.images.get("undo"),
+            compound="left",
+            text="Undo",
             font=("Arial",10,"bold"),
             command=self.undo_move
         )
@@ -226,8 +359,9 @@ class GameScreen(tk.Frame):
 
         self.reset_button = tk.Button(
             toolbar,
-            text="⟳ Reset",
-            width=12,
+            image=self.images.get("reset"),
+            compound="left",
+            text="Reset",
             font=("Arial",10,"bold"),
             command=self.reset_level
         )
@@ -241,8 +375,9 @@ class GameScreen(tk.Frame):
 
         self.back_button = tk.Button(
             toolbar,
-            text="← Menu",
-            width=12,
+            image=self.images.get("menu"),
+            compound="left",
+            text="Menu",
             font=("Arial",10,"bold"),
             command=self.back_menu
         )
@@ -370,24 +505,11 @@ class GameScreen(tk.Frame):
 
             # Kotak tabung
 
-            self.canvas.create_rectangle(
-
-                x - 55,
-
-                y,
-
-                x + 55,
-
-                y + 300,
-
-                outline="#333333",
-
-                width=3,
-
-                fill="#D9D9D9",
-
+            self.canvas.create_image(
+                x,
+                y + 150,
+                image=self.images["tabung"],
                 tags=f"tube_{index}"
-
             )
 
 
@@ -447,56 +569,46 @@ class GameScreen(tk.Frame):
 
 
 
-    # =================================================
-    # GAMBAR BOLA DALAM TABUNG
-    # =================================================
-
-    def draw_balls(
-            self,
-            tube_index,
-            x,
-            y
-    ):
-
+    def draw_balls(self, tube_index, x, y):
 
         tube = self.tubes[tube_index]
 
-
-
-        posisi_y = y + 230
-
-
-
-        # Bola paling bawah digambar dulu
+        posisi_y = y + 220
 
         for warna in tube:
 
+            if warna == "#FF5252":
+                gambar = self.images["merah"]
 
-            self.canvas.create_oval(
+            elif warna == "#2196F3":
+                gambar = self.images["biru"]
 
-                x - 35,
+            elif warna == "#FFC107":
+                gambar = self.images["kuning"]
 
-                posisi_y,
+            else:
+                gambar = None
 
-                x + 35,
-
-                posisi_y + 62,
-
-                fill=warna,
-
-                outline="#FFFFFF",
-
-                width=2,
-
-                tags=f"tube_{tube_index}"
-
-            )
-
+            if gambar:
+                self.canvas.create_image(
+                    x,
+                    posisi_y,
+                    image=gambar,
+                    tags=f"tube_{tube_index}"
+                )
+            else:
+                # fallback kalau warna tidak ada gambarnya
+                self.canvas.create_oval(
+                    x-30,
+                    posisi_y-30,
+                    x+30,
+                    posisi_y+30,
+                    fill=warna,
+                    outline="white",
+                    tags=f"tube_{tube_index}"
+                )
 
             posisi_y -= 68
-
-
-
     # =================================================
     # KLIK TABUNG
     # =================================================
@@ -634,21 +746,26 @@ class GameScreen(tk.Frame):
     # =================================================
     # UNDO
     # =================================================
-
     def undo_move(self):
-
 
         state = self.undo_manager.undo()
 
 
-
         if state:
-
 
             self.tubes = state
 
+            self.selected_tube = None
 
             self.draw_tubes()
+
+
+        else:
+
+            messagebox.showinfo(
+                "Undo",
+                "Belum ada langkah yang bisa dikembalikan."
+            )
 
 
 
