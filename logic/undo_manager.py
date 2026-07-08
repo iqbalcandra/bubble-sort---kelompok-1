@@ -1,10 +1,15 @@
 """
-undo_manager.py
+logic/undo_manager.py
 Mengelola fitur Undo (membatalkan satu langkah terakhir).
 
 Sesuai laporan BAB 5.4:
 - Pemain hanya bisa membatalkan SATU langkah terakhir.
 - Fitur ini tidak mempengaruhi timer maupun skor dasar.
+
+API dipakai di screens/game_screen.py:
+    undo_manager.save_state(self.tubes)   -> simpan kondisi papan sebelum bergerak
+    undo_manager.undo()                   -> kembalikan kondisi papan sebelumnya
+    undo_manager.clear()                  -> kosongkan riwayat (dipanggil saat reset_level)
 """
 
 import copy
@@ -13,47 +18,48 @@ import copy
 class UndoManager:
     def __init__(self, batas_riwayat: int = 1):
         """
-        :param batas_riwayat: jumlah maksimal langkah yang disimpan untuk di-undo.
-                               Default 1, sesuai laporan (hanya bisa undo 1 langkah).
+        :param batas_riwayat: jumlah maksimal langkah yang bisa di-undo.
+                               Default 1, sesuai laporan (hanya 1 langkah terakhir).
         """
         self.batas_riwayat = batas_riwayat
-        self._riwayat_papan = []  # stack kondisi papan sebelum tiap langkah
+        self._riwayat = []  # stack kondisi papan sebelum tiap langkah
 
-    def simpan_state(self, kondisi_papan: list) -> None:
+    def save_state(self, tubes: list) -> None:
         """
-        Menyimpan kondisi papan (tabung & bola) SEBELUM sebuah langkah dilakukan.
-        Dipanggil oleh game_logic.py setiap kali pemain berhasil memindahkan bola.
+        Menyimpan kondisi papan (tubes) SEBELUM sebuah langkah dilakukan.
+        Dipanggil oleh game_screen.py tepat sebelum move_ball() mengubah papan.
 
-        :param kondisi_papan: representasi papan saat ini, mis. list of list
-                               (tiap tabung berisi list warna bola dari bawah ke atas)
+        :param tubes: representasi papan saat ini (list of list, tiap tabung
+                      berisi list warna dari bawah ke atas)
         """
-        # Simpan salinan independen (deep copy) agar tidak ikut berubah
-        # saat papan asli dimodifikasi setelah ini.
-        self._riwayat_papan.append(copy.deepcopy(kondisi_papan))
+        # Simpan salinan independen (deep copy) supaya tidak ikut berubah
+        # saat tubes asli dimodifikasi setelah ini.
+        self._riwayat.append(copy.deepcopy(tubes))
 
-        # Batasi riwayat sesuai batas_riwayat, buang yang paling lama jika kelebihan
-        if len(self._riwayat_papan) > self.batas_riwayat:
-            self._riwayat_papan.pop(0)
+        # Batasi jumlah riwayat sesuai batas_riwayat, buang yang paling lama
+        if len(self._riwayat) > self.batas_riwayat:
+            self._riwayat.pop(0)
 
     def bisa_undo(self) -> bool:
         """Mengecek apakah ada langkah yang bisa dibatalkan."""
-        return len(self._riwayat_papan) > 0
+        return len(self._riwayat) > 0
 
     def undo(self):
         """
-        Mengembalikan kondisi papan ke sebelum langkah terakhir dilakukan.
-        Tidak mengubah timer maupun skor dasar level.
+        Mengembalikan kondisi papan (tubes) ke sebelum langkah terakhir.
+        Tidak mempengaruhi timer maupun skor dasar level.
 
-        :return: kondisi_papan sebelumnya, atau None jika tidak ada riwayat
+        :return: kondisi tubes sebelumnya, atau None jika tidak ada riwayat
         """
         if not self.bisa_undo():
             return None
 
-        return self._riwayat_papan.pop()
+        return self._riwayat.pop()
 
-    def reset(self) -> None:
+    def clear(self) -> None:
         """
         Mengosongkan seluruh riwayat undo.
-        Dipanggil saat level baru dimulai atau saat 'Ulangi Level' ditekan.
+        Dipanggil saat level baru dimulai atau saat 'Ulangi Level' ditekan
+        (reset_level di game_screen.py).
         """
-        self._riwayat_papan = []
+        self._riwayat = []
