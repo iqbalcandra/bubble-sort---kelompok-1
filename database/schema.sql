@@ -3,8 +3,8 @@
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS color_ball_sort
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
 
 USE color_ball_sort;
 
@@ -12,8 +12,8 @@ USE color_ball_sort;
 -- TABEL USERS
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS users (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(50) UNIQUE NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     tanggal_daftar DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS users (
 -- TABEL LEVELS
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS levels (
-    id_level INT PRIMARY KEY AUTO_INCREMENT,
-    nama_level VARCHAR(20) NOT NULL,
+    id_level INT AUTO_INCREMENT PRIMARY KEY,
+    nama_level VARCHAR(20) NOT NULL UNIQUE,
     jumlah_warna INT NOT NULL,
     jumlah_tabung INT NOT NULL,
     timer INT NOT NULL,
@@ -34,22 +34,35 @@ CREATE TABLE IF NOT EXISTS levels (
 -- TABEL SCORES
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS scores (
-    id INT PRIMARY KEY AUTO_INCREMENT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     score INT NOT NULL,
     level_reached VARCHAR(20) NOT NULL,
-    tanggal_main DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    waktu_bermain DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_scores_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- ------------------------------------------------------------
 -- TABEL PROGRESS
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS progress (
-    id_progress INT PRIMARY KEY AUTO_INCREMENT,
+    id_progress INT AUTO_INCREMENT PRIMARY KEY,
+
     user_id INT NOT NULL UNIQUE,
-    current_level VARCHAR(20) DEFAULT 'Easy',
-    best_score INT DEFAULT 0,
-    last_updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+
+    current_level VARCHAR(20) NOT NULL DEFAULT 'Mudah',
+
+    best_score INT NOT NULL DEFAULT 0,
+
+    last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
+    ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_progress_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
 ) ENGINE=InnoDB;
