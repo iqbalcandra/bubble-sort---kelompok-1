@@ -6,15 +6,17 @@ from PIL import Image, ImageTk
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FOLDER_ICON = os.path.join(BASE_DIR, "aset", "Icon level selesai")
 
+# Warna yang digunakan pada halaman
 BG_COLOR = "#F5F7FB"
 PRIMARY_BLUE = "#1565D8"
 ORANGE = "#D97706"
 TOTAL_BG = "#EAF2FF"
 BORDER_COLOR = "#E5E5E5"
 
+# Lebar card informasi skor
 CARD_WIDTH = 430
 
-
+# Memuat gambar dari folder aset
 def muat(nama_file, size=None):
     img = Image.open(os.path.join(FOLDER_ICON, nama_file))
     if size:
@@ -35,6 +37,7 @@ class LevelSelesaiScreen(tk.Frame):
     ):
         super().__init__(parent, bg=BG_COLOR)
 
+        # Menyimpan nilai skor level
         self.skor_dasar = skor_dasar
         self.bonus_waktu = bonus_waktu
 
@@ -66,6 +69,8 @@ class LevelSelesaiScreen(tk.Frame):
 
     # Menampilkan icon trophy, judul, card skor, dan tombol
     def buat_konten(self):
+        
+        # Frame utama halaman
         isi = tk.Frame(self, bg=BG_COLOR)
         isi.pack(pady=40)
 
@@ -98,6 +103,7 @@ class LevelSelesaiScreen(tk.Frame):
         card_wrap.pack()
         card_wrap.pack_propagate(False)
 
+        # Card untuk menampilkan informasi skor
         card = tk.Frame(
             card_wrap, bg="white",
             highlightbackground=BORDER_COLOR, highlightthickness=1,
