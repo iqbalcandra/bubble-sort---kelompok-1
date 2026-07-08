@@ -2,196 +2,494 @@ import os
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
+import subprocess
+import sys
+
+# ===============================
+# WINDOW
+# ===============================
 
 root = tk.Tk()
 root.title("Color Ball Sort Puzzle")
-root.geometry("450x550")
+root.geometry("1100x650")
+root.configure(bg="#F5F5F5")
 root.resizable(False, False)
 
+# ===============================
+# LOAD GAMBAR
+# ===============================
 
-# ==================== FUNGSI ====================
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Fungsi untuk menampilkan frame login
-def show_login():
-    # menyembunyikan frame register
-    register_frame.pack_forget()
-    login_frame.pack(fill="both", expand=True)
+logo_path = os.path.join(BASE_DIR, "aset", "logo_baru.PNG")
 
-# Fungsi untuk menampilkan frame register
+logo_img = Image.open(logo_path)
+logo_img = logo_img.resize((120, 120))
 
+logo = ImageTk.PhotoImage(logo_img)
 
-def show_register():
-    # menyembunyikan frame login
-    login_frame.pack_forget()
-    register_frame.pack(fill="both", expand=True)
+# ===============================
+# FUNGSI
+# ===============================
 
 
 def login():
-    # mengambil isi username  dari entry login_username dan password dari entry login_password
+
     username = login_username.get()
     password = login_password.get()
 
     if username == "" or password == "":
-        messagebox.showerror("Error", "Username dan Password harus diisi!")
-        return
-
-    messagebox.showinfo("Login", f"Selamat datang, {username}!")
-
-
-def register():
-    # mengambil data dari entry register
-    username = reg_username.get()
-    password = reg_password.get()
-    confirm = reg_confirm.get()
-
-    if username == "" or password == "" or confirm == "":
-        messagebox.showerror("Error", "Semua data harus diisi!")
-        return
-
-    if password != confirm:
-        messagebox.showerror("Error", "Konfirmasi password tidak cocok!")
+        messagebox.showerror(
+            "Error",
+            "Username dan Password harus diisi!"
+        )
         return
 
     messagebox.showinfo(
-        "Registrasi",
-        "Akun berhasil dibuat.\nSilakan login."
+        "Login",
+        f"Selamat datang, {username}"
+    )
+
+    # Tutup window login
+    root.destroy()
+
+    # Jalankan menu screen
+    menu_path = os.path.join(BASE_DIR, "screens", "menu_screen.py")
+
+    subprocess.Popen([sys.executable, menu_path])
+
+
+def register():
+
+    if reg_username.get() == "" \
+            or reg_password.get() == "" \
+            or reg_confirm.get() == "":
+
+        messagebox.showerror(
+            "Error",
+            "Semua data harus diisi!"
+        )
+        return
+
+    if reg_password.get() != reg_confirm.get():
+
+        messagebox.showerror(
+            "Error",
+            "Konfirmasi password tidak cocok!"
+        )
+        return
+
+    messagebox.showinfo(
+        "Berhasil",
+        "Registrasi berhasil.\nSilakan login."
     )
 
     show_login()
 
-# untuk menampilakn / menyembukin password pada login dan register
+
+def show_login():
+    login_card.pack(expand=True)
+    register_card.pack_forget()
+
+
+def show_register():
+    register_card.pack(expand=True)
+    login_card.pack_forget()
 
 
 def show_login_password():
-    # jika checkbutton dicentang
+
     if login_show.get():
-        # password akan munculs
         login_password.config(show="")
     else:
         login_password.config(show="*")
 
 
 def show_register_password():
+
     if register_show.get():
+
         reg_password.config(show="")
         reg_confirm.config(show="")
+
     else:
+
         reg_password.config(show="*")
         reg_confirm.config(show="*")
 
-
-# ==================== PROSES PEMBUATAN GAMBAR (MANDATORY DI SINI) ====================
-
-# 1. Menentukan path folder aset (keluar 1 tingkat dari folder 'screens')
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-logo_path = os.path.join(BASE_DIR, "aset", "logo_baru.PNG")
-
-# 2. Membuka file gambar asli menggunakan PIL
-logo_image = Image.open(logo_path)
-logo_image = logo_image.resize((120, 120))
-
-# 3. Membuat objek PhotoImage untuk login dan register secara terpisah
-logo_login = ImageTk.PhotoImage(logo_image)
-logo_register = ImageTk.PhotoImage(logo_image)
+# ===============================
+# MAIN FRAME
+# ===============================
 
 
-# ==================== LOGIN SCREEN ====================
+main = tk.Frame(
+    root,
+    bg="#F5F5F5"
+)
 
-login_frame = tk.Frame(root)
+main.pack(
+    fill="both",
+    expand=True,
+    padx=40,
+    pady=30
+)
 
-# Menampilkan logo login (Variabel logo_login dijamin aman karena sudah dibuat di atas)
-label_logo_login = tk.Label(login_frame, image=logo_login)
-label_logo_login.image = logo_login
-label_logo_login.pack(pady=10)
+# ===============================
+# BAGIAN KIRI
+# ===============================
+
+left = tk.Frame(
+    main,
+    bg="#F5F5F5"
+)
+
+left.pack(
+    side="left",
+    fill="both",
+    expand=True
+)
 
 tk.Label(
-    login_frame,
-    text="COLOR BALL SORT PUZZLE",
-    font=("Arial", 16, "bold")
-).pack(pady=20)
+    left,
+    image=logo,
+    bg="#F5F5F5"
+).pack(
+    pady=(120, 20)
+)
 
-tk.Label(login_frame, text="Username").pack()
-login_username = tk.Entry(login_frame, width=30)
-login_username.pack(pady=5)
+tk.Label(
+    left,
+    text="Color Ball Sort Puzzle",
+    font=("Arial", 24, "bold"),
+    fg="#1565D8",
+    bg="#F5F5F5"
+).pack()
 
-tk.Label(login_frame, text="Password").pack()
-login_password = tk.Entry(login_frame, width=30, show="*")
-login_password.pack(pady=5)
+tk.Label(
+    left,
+    text="Susun warna, asah logika,\ndan raih skor tertinggi\nbersama teman-temanmu!",
+    font=("Arial", 11),
+    fg="gray",
+    bg="#F5F5F5",
+    justify="center"
+).pack(
+    pady=15
+)
+
+# ===============================
+# BAGIAN KANAN
+# ===============================
+
+right = tk.Frame(
+    main,
+    bg="#F5F5F5"
+)
+
+right.pack(
+    side="right",
+    fill="both",
+    expand=True
+)
+
+# ===============================
+# LOGIN CARD
+# ===============================
+
+login_card = tk.Frame(
+    right,
+    bg="white",
+    width=360,
+    height=550,
+    bd=1,
+    relief="solid"
+)
+
+login_card.pack_propagate(False)
+login_card.pack(expand=True)
+
+tk.Label(
+    login_card,
+    image=logo,
+    bg="white"
+).pack(pady=(25, 10))
+
+tk.Label(
+    login_card,
+    text="Color Ball Sort Puzzle",
+    font=("Arial", 16, "bold"),
+    fg="#1565D8",
+    bg="white"
+).pack()
+
+tk.Label(
+    login_card,
+    text="Selamat Datang Kembali",
+    font=("Arial", 10),
+    bg="white",
+    fg="gray"
+).pack(pady=(0, 20))
+
+# ---------------- Username ----------------
+
+tk.Label(
+    login_card,
+    text="Username",
+    bg="white",
+    font=("Arial", 10, "bold")
+).pack(anchor="w", padx=35)
+
+login_username = tk.Entry(
+    login_card,
+    width=35,
+    font=("Arial", 11)
+)
+
+login_username.pack(
+    padx=35,
+    pady=(5, 15),
+    ipady=5
+)
+
+# ---------------- Password ----------------
+
+tk.Label(
+    login_card,
+    text="Password",
+    bg="white",
+    font=("Arial", 10, "bold")
+).pack(anchor="w", padx=35)
+
+login_password = tk.Entry(
+    login_card,
+    width=35,
+    font=("Arial", 11),
+    show="*"
+)
+
+login_password.pack(
+    padx=35,
+    pady=(5, 5),
+    ipady=5
+)
 
 login_show = tk.BooleanVar()
+
 tk.Checkbutton(
-    login_frame,
-    text="Show Password",
+    login_card,
+    text="Tampilkan Password",
     variable=login_show,
-    command=show_login_password
-).pack()
+    command=show_login_password,
+    bg="white"
+).pack(
+    anchor="w",
+    padx=35,
+    pady=(0, 20)
+)
+
+# ---------------- Tombol Login ----------------
 
 tk.Button(
-    login_frame,
+    login_card,
     text="Masuk",
-    width=20,
+    bg="#1565D8",
+    fg="white",
+    font=("Arial", 11, "bold"),
+    width=28,
+    height=2,
+    relief="flat",
+    cursor="hand2",
     command=login
-).pack(pady=10)
-
-tk.Button(
-    login_frame,
-    text="Daftar",
-    width=20,
-    command=show_register
 ).pack()
 
+# ---------------- Pindah Register ----------------
 
-# ==================== REGISTER SCREEN ====================
+frame_bawah = tk.Frame(
+    login_card,
+    bg="white"
+)
 
-register_frame = tk.Frame(root)
-
-# Menampilkan logo register
-label_logo_reg = tk.Label(register_frame, image=logo_register)
-label_logo_reg.image = logo_register
-label_logo_reg.pack(pady=10)
+frame_bawah.pack(pady=20)
 
 tk.Label(
-    register_frame,
-    text="BUAT AKUN BARU",
-    font=("Arial", 16, "bold")
-).pack(pady=15)
+    frame_bawah,
+    text="Belum punya akun?",
+    bg="white",
+    fg="gray"
+).pack(side="left")
 
-tk.Label(register_frame, text="Username").pack()
-reg_username = tk.Entry(register_frame, width=30)
-reg_username.pack(pady=5)
+tk.Button(
+    frame_bawah,
+    text="Daftar",
+    bg="white",
+    fg="#1565D8",
+    relief="flat",
+    cursor="hand2",
+    command=show_register
+).pack(side="left")
 
-tk.Label(register_frame, text="Password").pack()
-reg_password = tk.Entry(register_frame, width=30, show="*")
-reg_password.pack(pady=5)
+# ===============================
+# REGISTER CARD
+# ===============================
 
-tk.Label(register_frame, text="Konfirmasi Password").pack()
-reg_confirm = tk.Entry(register_frame, width=30, show="*")
-reg_confirm.pack(pady=5)
+register_card = tk.Frame(
+    right,
+    bg="white",
+    width=360,
+    height=550,
+    bd=1,
+    relief="solid"
+)
+
+register_card.pack_propagate(False)
+register_card.pack(expand=True)
+register_card.pack_forget()
+
+tk.Label(
+    register_card,
+    image=logo,
+    bg="white"
+).pack(pady=(20, 10))
+
+tk.Label(
+    register_card,
+    text="Buat Akun Baru",
+    font=("Arial", 16, "bold"),
+    fg="#1565D8",
+    bg="white"
+).pack()
+
+tk.Label(
+    register_card,
+    text="Daftar dan mulai petualanganmu!",
+    font=("Arial", 10),
+    bg="white",
+    fg="gray"
+).pack(pady=(0, 20))
+
+# ---------- Username ----------
+
+tk.Label(
+    register_card,
+    text="Username",
+    bg="white",
+    font=("Arial", 10, "bold")
+).pack(anchor="w", padx=35)
+
+reg_username = tk.Entry(
+    register_card,
+    width=35,
+    font=("Arial", 11)
+)
+
+reg_username.pack(
+    padx=35,
+    pady=(5, 15),
+    ipady=5
+)
+
+# ---------- Password ----------
+
+tk.Label(
+    register_card,
+    text="Password",
+    bg="white",
+    font=("Arial", 10, "bold")
+).pack(anchor="w", padx=35)
+
+reg_password = tk.Entry(
+    register_card,
+    width=35,
+    font=("Arial", 11),
+    show="*"
+)
+
+reg_password.pack(
+    padx=35,
+    pady=(5, 15),
+    ipady=5
+)
+
+# ---------- Konfirmasi Password ----------
+
+tk.Label(
+    register_card,
+    text="Konfirmasi Password",
+    bg="white",
+    font=("Arial", 10, "bold")
+).pack(anchor="w", padx=35)
+
+reg_confirm = tk.Entry(
+    register_card,
+    width=35,
+    font=("Arial", 11),
+    show="*"
+)
+
+reg_confirm.pack(
+    padx=35,
+    pady=(5, 5),
+    ipady=5
+)
+
+# ---------- Show Password ----------
 
 register_show = tk.BooleanVar()
+
 tk.Checkbutton(
-    register_frame,
-    text="Show Password",
+    register_card,
+    text="Tampilkan Password",
     variable=register_show,
-    command=show_register_password
-).pack()
+    command=show_register_password,
+    bg="white"
+).pack(
+    anchor="w",
+    padx=35,
+    pady=(0, 20)
+)
+
+# ---------- Tombol Register ----------
 
 tk.Button(
-    register_frame,
-    text="Daftar Sekarang",
-    width=20,
+    register_card,
+    text="Daftar",
+    bg="#1565D8",
+    fg="white",
+    font=("Arial", 11, "bold"),
+    width=28,
+    height=2,
+    relief="flat",
+    cursor="hand2",
     command=register
-).pack(pady=10)
-
-tk.Button(
-    register_frame,
-    text="Kembali ke Masuk",
-    width=20,
-    command=show_login
 ).pack()
 
+# ---------- Kembali Login ----------
 
-# Menjalankan screen pertama kali
-show_login()
+frame_login = tk.Frame(
+    register_card,
+    bg="white"
+)
+
+frame_login.pack(pady=20)
+
+tk.Label(
+    frame_login,
+    text="Sudah punya akun?",
+    bg="white",
+    fg="gray"
+).pack(side="left")
+
+tk.Button(
+    frame_login,
+    text="Masuk",
+    bg="white",
+    fg="#1565D8",
+    relief="flat",
+    cursor="hand2",
+    command=show_login
+).pack(side="left")
+
+
+login_card.pack(expand=True)
+register_card.pack_forget()
 
 root.mainloop()
