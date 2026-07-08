@@ -1,90 +1,184 @@
 """
 logic/level_manager.py
-Mengelola data & urutan level (Mudah -> Sedang -> Sulit), mengambil
-konfigurasi level dari database lewat database/queries.py.
 
-API dipakai di screens/game_screen.py:
-    level_manager.next_level(id_level)   -> dict level berikutnya, atau None
-                                             jika id_level adalah level terakhir
+Mengatur data level Color Ball Sort Puzzle.
+
+Tugas:
+- Mengambil data level dari database
+- Mengecek level terbuka / terkunci
+- Menentukan level berikutnya
+- Mengecek level terakhir
+
+Tidak menggunakan Tkinter.
 """
 
-from database import queries
+
+from database.queries import get_all_levels
 
 
 class LevelManager:
+
+
     def __init__(self):
-        # cache sederhana supaya tidak query berulang kali dalam 1 sesi
-        self._levels_cache = None
 
-    def _ambil_semua_level_urut(self) -> list:
+        self.levels = []
+
+        self.load_levels()
+
+
+
+    # ==========================================
+    # LOAD LEVEL DARI DATABASE
+    # ==========================================
+
+    def load_levels(self):
+
         """
-        Mengambil seluruh level dari database, diurutkan berdasarkan id_level.
-        Di-cache supaya panggilan berulang (next_level, get_level_by_id, dst)
-        tidak query database berkali-kali.
+        Mengambil semua level dari tabel levels.
         """
-        if self._levels_cache is None:
-            data = queries.get_all_levels()
-            self._levels_cache = sorted(data, key=lambda lvl: lvl["id_level"])
-        return self._levels_cache
 
-    def muat_ulang(self) -> None:
-        """Membersihkan cache, dipanggil jika data level di database berubah."""
-        self._levels_cache = None
+        self.levels = get_all_levels()
 
-    def get_semua_level(self) -> list:
-        """Mengembalikan seluruh level, terurut dari Mudah -> Sulit."""
-        return self._ambil_semua_level_urut()
 
-    def get_level_by_id(self, id_level: int):
-        """Mengambil satu level berdasarkan id_level. Return None jika tidak ada."""
-        for lvl in self._ambil_semua_level_urut():
-            if lvl["id_level"] == id_level:
-                return lvl
+
+    # ==========================================
+    # AMBIL SEMUA LEVEL
+    # ==========================================
+
+    def get_semua_level(self):
+
+        """
+        Dipakai oleh level_screen.py
+        untuk membuat card level.
+        """
+
+        return self.levels
+
+
+
+    # ==========================================
+    # CEK LEVEL TERBUKA
+    # ==========================================
+
+    def is_level_terbuka(
+            self,
+            id_level,
+            current_level
+    ):
+
+        """
+        Sistem unlock:
+
+        Level 1:
+        selalu terbuka
+
+        Level berikutnya:
+        terbuka jika pemain sudah mencapai level tersebut.
+        """
+
+
+        if isinstance(current_level, str):
+
+            current = self.get_level_by_name(
+                current_level
+            )
+
+            if current:
+
+                current_level = current["id_level"]
+
+            else:
+
+                current_level = 1
+
+
+
+        return id_level <= current_level
+
+
+
+
+    # ==========================================
+    # CARI LEVEL BERDASARKAN ID
+    # ==========================================
+
+    def get_level_by_id(
+            self,
+            id_level
+    ):
+
+
+        for level in self.levels:
+
+            if level["id_level"] == id_level:
+
+                return level
+
+
         return None
 
-    def get_level_by_name(self, nama_level: str):
-        """Mengambil satu level berdasarkan namanya (Mudah/Sedang/Sulit)."""
-        for lvl in self._ambil_semua_level_urut():
-            if lvl["nama_level"] == nama_level:
-                return lvl
+
+
+    # ==========================================
+    # CARI LEVEL BERDASARKAN NAMA
+    # ==========================================
+
+    def get_level_by_name(
+            self,
+            nama
+    ):
+
+
+        for level in self.levels:
+
+            if level["nama_level"] == nama:
+
+                return level
+
+
         return None
 
-    def next_level(self, id_level: int):
-        """
-        Mengembalikan dict level berikutnya setelah id_level.
-        Dipanggil di game_screen.py (update_player_progress) untuk menentukan
-        level_selanjutnya setelah pemain menang.
 
-        :return: dict level berikutnya, atau None jika id_level adalah level
-                 terakhir (Sulit) / id_level tidak ditemukan
-        """
-        levels = self._ambil_semua_level_urut()
 
-        for index, lvl in enumerate(levels):
-            if lvl["id_level"] == id_level:
-                if index + 1 < len(levels):
-                    return levels[index + 1]
-                return None  # sudah di level terakhir
+    # ==========================================
+    # LEVEL BERIKUTNYA
+    # ==========================================
 
-        return None  # id_level tidak ditemukan
+    def next_level(
+            self,
+            id_level
+    ):
 
-    def is_level_terakhir(self, id_level: int) -> bool:
-        """Mengecek apakah id_level adalah level terakhir (Sulit)."""
-        return self.next_level(id_level) is None
 
-    def is_level_terbuka(self, id_level: int, current_level_pemain: str) -> bool:
-        """
-        Mengecek apakah sebuah level sudah terbuka/bisa dimainkan pemain,
-        berdasarkan current_level yang tersimpan di tabel progress.
-        Dipakai oleh screens/level_screen.py untuk status lock/unlock.
+        next_id = id_level + 1
 
-        Aturan: level terbuka jika id_level <= id dari current_level_pemain.
-        """
-        levels = self._ambil_semua_level_urut()
-        target_level = self.get_level_by_id(id_level)
-        pemain_level = self.get_level_by_name(current_level_pemain)
 
-        if target_level is None or pemain_level is None:
-            return False
+        return self.get_level_by_id(
+            next_id
+        )
 
-        return target_level["id_level"] <= pemain_level["id_level"]
+
+
+    # ==========================================
+    # CEK LEVEL TERAKHIR
+    # ==========================================
+
+    def is_level_terakhir(
+            self,
+            id_level
+    ):
+
+
+        if len(self.levels) == 0:
+
+            return True
+
+
+
+        level_terakhir = max(
+            self.levels,
+            key=lambda x:x["id_level"]
+        )
+
+
+        return id_level == level_terakhir["id_level"]
