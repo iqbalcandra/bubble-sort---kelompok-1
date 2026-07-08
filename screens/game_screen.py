@@ -1,469 +1,951 @@
-import os
+"""
+screens/game_screen.py
+
+Halaman utama permainan Color Ball Sort Puzzle.
+
+Tugas:
+- Membuat UI Game
+- Menggambar tabung
+- Menggambar bola
+- Menangani klik pemain
+- Memanggil logic manager
+
+CATATAN PERBAIKAN:
+- generate_tubes(), move_ball(), check_win() DIHAPUS dari file ini (dulu
+  duplikat logic manual) -> sekarang dipanggil lewat self.game_logic
+  (lihat logic/game_logic.py, class GameLogic).
+- Import "logic.progres_manager" diperbaiki jadi "logic.progress_manager"
+  (nama file & class yang benar: ProgressManager).
+"""
+
+
 import tkinter as tk
 from tkinter import messagebox
-from PIL import Image, ImageTk
 
 
-class MenuScreen(tk.Frame):
+
+# ================================
+# IMPORT LOGIC MANAGER
+# ================================
+
+from logic.game_logic import GameLogic
+from logic.level_manager import LevelManager
+from logic.score_manager import ScoreManager
+from logic.timer_manager import TimerManager
+from logic.undo_manager import UndoManager
+from logic.progress_manager import ProgressManager
+from theme import BG_COLOR, CARD_COLOR, PRIMARY_BLUE, TEXT_DARK
+
+
+
+class GameScreen(tk.Frame):
+
 
     def __init__(
-        self,
-        parent,
-        on_mulai=None,
-        on_leaderboard=None,
-        on_progress=None,
-        on_setting=None,
-        on_logout=None
+            self,
+            parent,
+            user_data,
+            level_data,
+            on_back=None,
+            on_menang=None,
+            on_kalah=None
     ):
-        super().__init__(parent, bg="#F5F7FB")
 
-        # Callback
-        self.on_mulai = on_mulai or (lambda: None)
-        self.on_leaderboard = on_leaderboard or (lambda: None)
-        self.on_progress = on_progress or (lambda: None)
-        self.on_setting = on_setting or (lambda: None)
-        self.on_logout = on_logout or (lambda: None)
 
-        # Folder aset
-        base_dir = os.path.dirname(
-            os.path.dirname(os.path.abspath(__file__))
+        super().__init__(
+            parent,
+            bg=BG_COLOR
         )
 
-        self.folder_aset = os.path.join(base_dir, "aset")
-        self.folder_icon = os.path.join(
-            self.folder_aset,
-            "Icon menu utama"
-        )
 
-        self.muat_aset()
+        # ==========================
+        # DATA USER & LEVEL
+        # ==========================
 
-        self.buat_header()
-        self.buat_sidebar()
-        self.buat_konten()
+        self.user_data = user_data
 
-    # ---------------------------------------
-    # HELPER
-    # ---------------------------------------
+        self.level_data = level_data
 
-    def muat(self, path, size=None):
-        gambar = Image.open(path)
+        self.on_back = on_back
 
-        if size:
-            gambar = gambar.resize(size)
+        self.on_menang = on_menang
 
-        return ImageTk.PhotoImage(gambar)
+        self.on_kalah = on_kalah
 
-    def hover_card(self, frame, masuk):
 
-        warna = "#F8FAFF" if masuk else "white"
 
-        def ubah(widget):
-            try:
-                widget.configure(bg=warna)
-            except tk.TclError:
-                pass
+        # ==========================
+        # INISIALISASI MANAGER
+        # ==========================
 
-            for child in widget.winfo_children():
-                ubah(child)
+        self.game_logic = GameLogic()
 
-        ubah(frame)
+        self.level_manager = LevelManager()
 
-    def buat_card_klik(self, frame, command):
+        self.timer_manager = TimerManager()
 
-        frame.configure(cursor="hand2")
+        self.undo_manager = UndoManager()
 
-        frame.bind("<Button-1>", lambda e: command())
-        frame.bind("<Enter>", lambda e: self.hover_card(frame, True))
-        frame.bind("<Leave>", lambda e: self.hover_card(frame, False))
+        self.score_manager = ScoreManager()
 
-        for child in frame.winfo_children():
+        self.progress_manager = ProgressManager()
 
-            child.configure(cursor="hand2")
-            child.bind("<Button-1>", lambda e: command())
 
-            for item in child.winfo_children():
-                item.configure(cursor="hand2")
-                item.bind("<Button-1>", lambda e: command())
 
-    def keluar(self):
+        # ==========================
+        # DATA GAME
+        # ==========================
 
-        if messagebox.askyesno(
-            "Keluar",
-            "Apakah Anda yakin ingin keluar?"
-        ):
-            self.on_logout()
+        self.selected_tube = None
 
-    # ---------------------------------------
-    # LOAD ASET
-    # ---------------------------------------
 
-    def muat_aset(self):
+        self.tubes = []
 
-        self.logo = self.muat(
-            os.path.join(self.folder_aset, "logo_baru.PNG"),
-            (55, 55)
-        )
 
-        self.icon_home = self.muat(
-            os.path.join(self.folder_icon, "Icon home.png")
-        )
+        self.colors = []
 
-        self.icon_trophy = self.muat(
-            os.path.join(self.folder_icon, "Icon trophy.png")
-        )
 
-        self.icon_progress = self.muat(
-            os.path.join(self.folder_icon, "Icon progress.png")
-        )
 
-        self.icon_keluar = self.muat(
-            os.path.join(self.folder_icon, "Icon keluar.png")
-        )
+        # ==========================
+        # BUILD UI
+        # ==========================
 
-        self.gambar_trophy = self.muat(
-            os.path.join(self.folder_icon, "Gambar trophy.png"),
-            (60, 60)
-        )
+        self.create_header()
 
-        self.gambar_progress = self.muat(
-            os.path.join(self.folder_icon, "Gambar progress.png"),
-            (60, 60)
-        )
+        self.create_toolbar()
 
-        self.icon_setting = self.muat(
-            os.path.join(self.folder_icon, "Button setting.png"),
-            (26, 26)
-        )
+        self.create_game_area()
 
-        self.icon_play = self.muat(
-            os.path.join(self.folder_icon, "Icon play.png"),
-            (40, 40)
-        )
 
-       # ---------------------------------------
+
+        # ==========================
+        # MULAI LEVEL
+        # ==========================
+
+        self.start_level()
+
+
+
+    # =================================================
     # HEADER
-    # ---------------------------------------
+    # =================================================
 
-    def buat_header(self):
+    def create_header(self):
+
 
         header = tk.Frame(
             self,
-            bg="#F5F7FB",
-            height=80
-        )
-        header.pack(fill="x")
-
-        tk.Label(
-            header,
-            image=self.logo,
-            bg="#F5F7FB"
-        ).pack(
-            side="left",
-            padx=(25, 10),
-            pady=15
+            bg=BG_COLOR
         )
 
-        tk.Label(
-            header,
-            text="Color Ball Sort Puzzle",
-            font=("Arial", 18, "bold"),
-            bg="#F5F7FB",
-            fg="#1565D8"
-        ).pack(side="left")
-
-        tk.Button(
-            header,
-            image=self.icon_setting,
-            bg="#F5F7FB",
-            relief="flat",
-            cursor="hand2",
-            command=self.on_setting
-        ).pack(
-            side="right",
+        header.pack(
+            fill="x",
+            pady=20,
             padx=30
         )
 
-    # ---------------------------------------
-    # SIDEBAR
-    # ---------------------------------------
 
-    def buat_sidebar(self):
-
-        self.frame_utama = tk.Frame(
-            self,
-            bg="#F5F7FB"
+        self.title_label = tk.Label(
+            header,
+            text=f"Color Ball Sort Puzzle - Level {self.level_data['nama_level']}",
+            font=("Arial",18,"bold"),
+            bg=BG_COLOR,
+            fg=TEXT_DARK
         )
 
-        self.frame_utama.pack(
+        self.title_label.pack(
+            side="left"
+        )
+
+
+
+        self.timer_label = tk.Label(
+            header,
+            text="02:00",
+            font=("Arial",16,"bold"),
+            bg=BG_COLOR,
+            fg=PRIMARY_BLUE
+        )
+
+        self.timer_label.pack(
+            side="right",
+            padx=20
+        )
+
+
+
+        self.score_label = tk.Label(
+            header,
+            text="Score : 0",
+            font=("Arial",14,"bold"),
+            bg=BG_COLOR,
+            fg=TEXT_DARK
+        )
+
+        self.score_label.pack(
+            side="right"
+        )
+
+
+
+    # =================================================
+    # TOOLBAR
+    # =================================================
+
+    def create_toolbar(self):
+
+
+        toolbar = tk.Frame(
+            self,
+            bg=BG_COLOR
+        )
+
+
+        toolbar.pack(
+            fill="x",
+            padx=30,
+            pady=10
+        )
+
+
+
+        self.undo_button = tk.Button(
+            toolbar,
+            text="↶ Undo",
+            width=12,
+            font=("Arial",10,"bold"),
+            command=self.undo_move
+        )
+
+        self.undo_button.pack(
+            side="left",
+            padx=5
+        )
+
+
+
+        self.reset_button = tk.Button(
+            toolbar,
+            text="⟳ Reset",
+            width=12,
+            font=("Arial",10,"bold"),
+            command=self.reset_level
+        )
+
+        self.reset_button.pack(
+            side="left",
+            padx=5
+        )
+
+
+
+        self.back_button = tk.Button(
+            toolbar,
+            text="← Menu",
+            width=12,
+            font=("Arial",10,"bold"),
+            command=self.back_menu
+        )
+
+        self.back_button.pack(
+            side="right"
+        )
+
+
+
+    # =================================================
+    # AREA GAME CANVAS
+    # =================================================
+
+    def create_game_area(self):
+
+
+        # Card abu-abu pembungkus tabung, biar lebih dekat ke desain Figma
+        # (dulu tabung langsung nempel background utama tanpa wadah)
+        area_card = tk.Frame(
+            self,
+            bg="#D9D9D9"
+        )
+
+        area_card.pack(
             fill="both",
+            expand=True,
+            padx=40,
+            pady=(0, 20)
+        )
+
+        self.canvas = tk.Canvas(
+            area_card,
+            width=1360,
+            height=680,
+            bg="#D9D9D9",
+            highlightthickness=0
+        )
+
+
+        self.canvas.pack(
             expand=True
         )
 
-        sidebar = tk.Frame(
-            self.frame_utama,
-            bg="white",
-            width=230
+
+
+    # =================================================
+    # START LEVEL
+    # =================================================
+
+    def start_level(self):
+
+        jumlah_warna = self.level_data["jumlah_warna"]
+
+        jumlah_tabung = self.level_data["jumlah_tabung"]
+
+
+        # Membuat susunan bola awal (dipindah ke logic/game_logic.py)
+        self.tubes = self.game_logic.generate_tubes(
+            jumlah_warna,
+            jumlah_tabung
         )
 
-        sidebar.pack(
-            side="left",
-            fill="y",
-            padx=(20, 10),
-            pady=10
+
+        # Set skor berdasarkan level
+        self.score_manager.set_level(
+            self.level_data
         )
 
-        sidebar.pack_propagate(False)
 
-        tk.Button(
-            sidebar,
-            text="  Beranda",
-            image=self.icon_home,
-            compound="left",
-            font=("Arial", 11, "bold"),
-            bg="#1565D8",
-            fg="white",
-            relief="flat",
-            anchor="w",
-            padx=20
-        ).pack(
-            fill="x",
-            pady=(20, 8)
+        # Mulai timer
+        self.timer_manager.start(
+            self.level_data["timer"]
         )
 
-        tk.Button(
-            sidebar,
-            text="  Papan Peringkat",
-            image=self.icon_trophy,
-            compound="left",
-            font=("Arial", 11),
-            bg="white",
-            fg="#333333",
-            relief="flat",
-            anchor="w",
-            padx=20,
-            cursor="hand2",
-            command=self.on_leaderboard
-        ).pack(
-            fill="x",
-            pady=8
+
+        # Tampilkan game
+        self.draw_tubes()
+
+
+        # Jalankan update timer
+        self.update_timer()
+
+
+
+    # =================================================
+    # GAMBAR SEMUA TABUNG
+    # =================================================
+
+    def draw_tubes(self):
+
+
+        self.canvas.delete(
+            "all"
         )
 
-        tk.Button(
-            sidebar,
-            text="  Progress",
-            image=self.icon_progress,
-            compound="left",
-            font=("Arial", 11),
-            bg="white",
-            fg="#333333",
-            relief="flat",
-            anchor="w",
-            padx=20,
-            cursor="hand2",
-            command=self.on_progress
-        ).pack(
-            fill="x",
-            pady=8
+
+        jumlah_tabung = len(
+            self.tubes
         )
 
-        tk.Label(
-            sidebar,
-            bg="white"
-        ).pack(expand=True)
 
-        tk.Button(
-            sidebar,
-            text="  Keluar",
-            image=self.icon_keluar,
-            compound="left",
-            font=("Arial", 11),
-            bg="white",
-            fg="#D32F2F",
-            relief="flat",
-            anchor="w",
-            padx=20,
-            cursor="hand2",
-            command=self.keluar
-        ).pack(
-            fill="x",
-            pady=20
+        jarak = 150
+
+
+        posisi_awal = (
+            680 -
+            ((jumlah_tabung - 1) * jarak) / 2
         )
 
-            # ---------------------------------------
-    # KONTEN
-    # ---------------------------------------
 
-    def buat_konten(self):
 
-        konten = tk.Frame(
-            self.frame_utama,
-            bg="#F5F7FB"
-        )
+        for index, tube in enumerate(self.tubes):
 
-        konten.pack(
-            side="left",
-            fill="both",
-            expand=True,
-            padx=15,
-            pady=10
-        )
 
-        lebar_konten = 900
+            x = (
+                posisi_awal +
+                (index * jarak)
+            )
 
-        # Banner
-        banner = tk.Frame(
-            konten,
-            bg="#1565D8",
-            width=lebar_konten,
-            height=180
-        )
 
-        banner.pack(anchor="w")
-        banner.pack_propagate(False)
+            y = 170
 
-        banner.bind("<Button-1>", lambda e: self.on_mulai())
-        banner.configure(cursor="hand2")
 
-        badge = tk.Label(
-            banner,
-            text="  Mainkan Sekarang  ",
-            bg="#4F8FF7",
-            fg="white",
-            font=("Arial", 9, "bold"),
-            padx=6,
-            pady=4
-        )
-        badge.place(x=30, y=25)
 
-        judul = tk.Label(
-            banner,
-            text="Mulai Game",
-            bg="#1565D8",
-            fg="white",
-            font=("Arial", 26, "bold")
-        )
-        judul.place(x=30, y=65)
+            # Kotak tabung
 
-        deskripsi = tk.Label(
-            banner,
-            text="Lanjutkan dari Level 12 dan cetak skor tertinggi.",
-            bg="#1565D8",
-            fg="white",
-            font=("Arial", 10)
-        )
-        deskripsi.place(x=30, y=115)
+            self.canvas.create_rectangle(
 
-        for widget in (badge, judul, deskripsi):
-            widget.bind("<Button-1>", lambda e: self.on_mulai())
-            widget.configure(cursor="hand2")
+                x - 55,
 
-        tk.Button(
-            banner,
-            image=self.icon_play,
-            bg="#1565D8",
-            relief="flat",
-            bd=0,
-            activebackground="#1565D8",
-            cursor="hand2",
-            command=self.on_mulai
-        ).place(
-            relx=0.94,
-            rely=0.5,
-            anchor="center"
-        )
+                y,
 
-        # Card
-        gap = 20
-        lebar_card = (lebar_konten - gap) // 2
+                x + 55,
 
-        card_frame = tk.Frame(
-            konten,
-            bg="#F5F7FB",
-            width=lebar_konten,
-            height=180
-        )
+                y + 300,
 
-        card_frame.pack(
-            anchor="w",
-            pady=20
-        )
+                outline="#333333",
 
-        card_frame.pack_propagate(False)
+                width=3,
 
-        self.buat_card(
-            card_frame,
-            lebar_card,
-            self.gambar_trophy,
-            "Papan Peringkat",
-            "Lihat peringkatmu dibandingkan\ndengan teman-teman sekolah.",
-            self.on_leaderboard
-        ).pack(
-            side="left",
-            padx=(0, gap)
-        )
+                fill="#D9D9D9",
 
-        self.buat_card(
-            card_frame,
-            lebar_card,
-            self.gambar_progress,
-            "Progress Saya",
-            "Pantau statistik permainan\ndan koleksi bola spesialmu.",
-            self.on_progress
-        ).pack(side="left")
+                tags=f"tube_{index}"
 
-    # ---------------------------------------
-    # CARD
-    # ---------------------------------------
+            )
 
-    def buat_card(
-        self,
-        parent,
-        lebar,
-        gambar,
-        judul,
-        deskripsi,
-        command
+
+
+            # Gambar bola
+
+            self.draw_balls(
+
+                index,
+
+                x,
+
+                y
+
+            )
+
+
+
+            # Nomor tabung
+
+            self.canvas.create_text(
+
+                x,
+
+                y + 330,
+
+                text=f"{index+1}",
+
+                font=(
+                    "Arial",
+                    12,
+                    "bold"
+                )
+
+            )
+
+
+
+            # Event klik tabung
+
+            self.canvas.tag_bind(
+
+                f"tube_{index}",
+
+                "<Button-1>",
+
+                lambda event, i=index:
+                self.click_tube(i)
+
+            )
+
+
+        # Gambar ulang highlight tabung terpilih (jika ada), supaya tetap
+        # terlihat setelah canvas di-clear & digambar ulang.
+        if self.selected_tube is not None:
+            self.highlight_tube(self.selected_tube)
+
+
+
+    # =================================================
+    # GAMBAR BOLA DALAM TABUNG
+    # =================================================
+
+    def draw_balls(
+            self,
+            tube_index,
+            x,
+            y
     ):
 
-        card = tk.Frame(
-            parent,
-            bg="white",
-            bd=1,
-            relief="solid",
-            width=lebar,
-            height=180
+
+        tube = self.tubes[tube_index]
+
+
+
+        posisi_y = y + 230
+
+
+
+        # Bola paling bawah digambar dulu
+
+        for warna in tube:
+
+
+            self.canvas.create_oval(
+
+                x - 35,
+
+                posisi_y,
+
+                x + 35,
+
+                posisi_y + 62,
+
+                fill=warna,
+
+                outline="#FFFFFF",
+
+                width=2,
+
+                tags=f"tube_{tube_index}"
+
+            )
+
+
+            posisi_y -= 68
+
+
+
+    # =================================================
+    # KLIK TABUNG
+    # =================================================
+
+    def click_tube(self, index):
+
+
+        # Jika belum ada tabung dipilih
+        if self.selected_tube is None:
+
+
+            # Tidak bisa pilih tabung kosong
+
+            if len(self.tubes[index]) == 0:
+
+                return
+
+
+
+            self.selected_tube = index
+
+
+            self.highlight_tube(index)
+
+
+
+        else:
+
+
+            sumber = self.selected_tube
+
+            tujuan = index
+
+
+
+            # Klik tabung yang sama
+            if sumber == tujuan:
+
+
+                self.selected_tube = None
+
+                self.draw_tubes()
+
+                return
+
+
+
+            # Simpan state SEBELUM pindah, hanya jika langkahnya valid
+            # (supaya undo tidak menyimpan state yang identik / percuma)
+            berhasil = False
+
+            if self.game_logic.validasi_pindah(self.tubes, sumber, tujuan):
+
+                self.undo_manager.save_state(self.tubes)
+
+                berhasil = self.game_logic.move_ball(
+                    self.tubes,
+                    sumber,
+                    tujuan
+                )
+
+
+
+            self.selected_tube = None
+
+
+
+            self.draw_tubes()
+
+
+
+            # cek menang
+
+            if berhasil and self.game_logic.check_win(self.tubes):
+
+                self.win_game()
+
+
+
+    # =================================================
+    # HIGHLIGHT TABUNG TERPILIH
+    # =================================================
+
+    def highlight_tube(self, index):
+
+
+        # menggambar border highlight di atas tabung yang dipilih
+        # (koordinat disamakan persis dengan kotak tabung di draw_tubes:
+        #  x-45..x+45, y 170..420)
+
+        jumlah = len(self.tubes)
+
+
+        jarak = 150
+
+
+        posisi_awal = (
+
+            680 -
+
+            ((jumlah - 1) * jarak) / 2
+
         )
 
-        card.pack_propagate(False)
 
-        isi = tk.Frame(
-            card,
-            bg="white"
+        x = (
+
+            posisi_awal +
+
+            index * jarak
+
         )
 
-        isi.pack(expand=True)
 
-        tk.Label(
-            isi,
-            image=gambar,
-            bg="white"
-        ).pack(pady=(0, 10))
+        self.canvas.create_rectangle(
 
-        tk.Label(
-            isi,
-            text=judul,
-            bg="white",
-            font=("Arial", 13, "bold")
-        ).pack()
+            x - 55,
 
-        tk.Label(
-            isi,
-            text=deskripsi,
-            bg="white",
-            fg="gray",
-            justify="center"
-        ).pack(pady=(5, 0))
+            170,
 
-        self.buat_card_klik(card, command)
+            x + 55,
 
-        return card
+            470,
+
+            outline=PRIMARY_BLUE,
+
+            width=5,
+
+            tags="highlight"
+
+        )
+
+
+
+    # =================================================
+    # UNDO
+    # =================================================
+
+    def undo_move(self):
+
+
+        state = self.undo_manager.undo()
+
+
+
+        if state:
+
+
+            self.tubes = state
+
+
+            self.draw_tubes()
+
+
+
+    # =================================================
+    # RESET LEVEL
+    # =================================================
+
+    def reset_level(self):
+
+
+        jawaban = messagebox.askyesno(
+
+            "Reset",
+
+            "Yakin ingin mengulang level?"
+
+        )
+
+
+        if not jawaban:
+
+            return
+
+
+
+        self.timer_manager.stop()
+
+
+
+        self.undo_manager.clear()
+
+
+
+        self.selected_tube = None
+
+
+
+        self.start_level()
+
+
+
+    # =================================================
+    # UPDATE TIMER
+    # =================================================
+
+    def update_timer(self):
+
+
+        self.timer_label.config(
+
+            text=self.timer_manager.get_format_time()
+
+        )
+
+
+
+        if self.timer_manager.is_habis():
+
+
+            self.game_over()
+
+            return
+
+
+
+        # update setiap 1 detik
+
+        self.after(
+
+            1000,
+
+            self.update_timer
+
+        )
+
+
+
+    # =================================================
+    # MENANG
+    # =================================================
+
+    def win_game(self):
+
+
+        # hentikan timer
+
+        self.timer_manager.stop()
+
+
+
+        # ambil sisa waktu
+
+        sisa_waktu = (
+
+            self.timer_manager.get_sisa_waktu()
+
+        )
+
+
+
+        # hitung skor
+
+        total_score = (
+
+            self.score_manager.hitung_skor(
+
+                sisa_waktu
+
+            )
+
+        )
+
+
+
+        self.score_label.config(
+
+            text=f"Score : {total_score}"
+
+        )
+
+
+
+        # simpan skor database
+
+        self.score_manager.simpan_skor(
+
+            self.user_data["id"],
+
+            self.level_data["nama_level"]
+
+        )
+
+
+
+        # update progress
+
+        self.update_player_progress(
+            total_score
+        )
+
+
+
+        # tampilkan Victory Screen (levelselesai.py) lewat callback,
+        # atau fallback messagebox kalau main.py belum menyambungkan on_menang
+        if self.on_menang:
+
+            rincian_skor = self.score_manager.get_rincian_skor()
+
+            ada_lanjut = not self.level_manager.is_level_terakhir(
+                self.level_data["id_level"]
+            )
+
+            self.on_menang(self.level_data, rincian_skor, ada_lanjut)
+
+        else:
+
+            messagebox.showinfo(
+
+                "Level Selesai",
+
+                f"""
+Selamat!
+
+Level :
+{self.level_data['nama_level']}
+
+Skor :
+{total_score}
+
+Bonus Waktu :
+{sisa_waktu * 10}
+"""
+
+            )
+
+
+
+    # =================================================
+    # UPDATE PROGRESS PLAYER
+    # =================================================
+
+    def update_player_progress(
+            self,
+            score
+    ):
+
+
+        next_level = (
+
+            self.level_manager.next_level(
+
+                self.level_data["id_level"]
+
+            )
+
+        )
+
+
+
+        if next_level:
+
+
+            level_selanjutnya = (
+
+                next_level["nama_level"]
+
+            )
+
+
+        else:
+
+
+            level_selanjutnya = (
+
+                self.level_data["nama_level"]
+
+            )
+
+
+
+        self.progress_manager.update_progress(
+
+            user_id=self.user_data["id"],
+
+            next_level=level_selanjutnya,
+
+            score=score
+
+        )
+
+
+
+    # =================================================
+    # GAME OVER
+    # =================================================
+
+    def game_over(self):
+
+
+        self.timer_manager.stop()
+
+
+
+        # tampilkan Game Over Screen (gameover.py) lewat callback,
+        # atau fallback messagebox + auto reset kalau main.py belum
+        # menyambungkan on_kalah
+        if self.on_kalah:
+
+            self.on_kalah(self.level_data)
+
+        else:
+
+            messagebox.showwarning(
+
+                "Game Over",
+
+                f"""
+Waktu Habis!
+
+Level :
+{self.level_data['nama_level']}
+
+Coba lagi untuk menyelesaikan puzzle.
+"""
+
+            )
+
+            self.reset_level()
+
+
+
+    # =================================================
+    # KEMBALI KE MENU
+    # =================================================
+
+    def back_menu(self):
+
+
+        jawaban = messagebox.askyesno(
+
+            "Kembali",
+
+            "Keluar dari permainan?"
+
+        )
+
+
+        if not jawaban:
+
+            return
+
+
+
+        self.timer_manager.stop()
+
+
+
+        if self.on_back:
+
+            self.on_back()
