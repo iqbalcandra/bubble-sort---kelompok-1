@@ -117,7 +117,8 @@ def get_level_by_name(nama_level: str):
         return None
     try:
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM levels WHERE nama_level = %s", (nama_level,))
+        cursor.execute(
+            "SELECT * FROM levels WHERE nama_level = %s", (nama_level,))
         return cursor.fetchone()
     except Exception as e:
         print(f"[ERROR] get_level_by_name: {e}")
@@ -289,28 +290,22 @@ def update_progress(
     if conn is None:
         return False
 
-
     cursor = None
-
 
     try:
 
         cursor = conn.cursor()
 
-
         cursor.execute(
             """
-            SELECT id
+            SELECT user_id
             FROM progress
             WHERE user_id=%s
             """,
             (user_id,)
         )
 
-
         data = cursor.fetchone()
-
-
 
         if data:
 
@@ -334,7 +329,6 @@ def update_progress(
                     user_id
                 )
             )
-
 
         else:
 
@@ -363,12 +357,9 @@ def update_progress(
                 )
             )
 
-
         conn.commit()
 
         return True
-
-
 
     except Exception as e:
 
@@ -380,8 +371,6 @@ def update_progress(
         )
 
         return False
-
-
 
     finally:
 
