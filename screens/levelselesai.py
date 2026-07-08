@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
 
+# Menentukan lokasi folder icon Level Selesai
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FOLDER_ICON = os.path.join(BASE_DIR, "aset", "Icon level selesai")
 
@@ -69,7 +70,7 @@ class LevelSelesaiScreen(tk.Frame):
 
     # Menampilkan icon trophy, judul, card skor, dan tombol
     def buat_konten(self):
-        
+
         # Frame utama halaman
         isi = tk.Frame(self, bg=BG_COLOR)
         isi.pack(pady=40)
