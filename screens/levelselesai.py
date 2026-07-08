@@ -56,15 +56,7 @@ class LevelSelesaiScreen(tk.Frame):
         on_menu_utama=None,
         ada_level_berikutnya=True,
     ):
-        """
-        :param rincian_skor: dict {"skor_dasar", "bonus_waktu", "total_skor"}
-                              -> persis output score_manager.get_rincian_skor()
-        :param on_level_berikutnya: callback() saat tombol "Level Berikutnya" diklik
-        :param on_ulangi: callback() saat tombol "Ulangi" diklik
-        :param on_menu_utama: callback() saat tombol "Menu Utama" diklik
-        :param ada_level_berikutnya: False jika ini level terakhir (Sulit),
-                                     supaya tombol "Level Berikutnya" disembunyikan
-        """
+
         super().__init__(parent, bg=BG_COLOR)
 
         self.rincian_skor = rincian_skor
@@ -217,6 +209,8 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title("Level Selesai")
     root.geometry("800x650")
+    root.state("zoomed")  # fullscreen
+    root.resizable(False, False)
     root.configure(bg=BG_COLOR)
 
     # contoh data, nanti ini datang dari score_manager.get_rincian_skor()
