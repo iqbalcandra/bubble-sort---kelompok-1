@@ -1,3 +1,24 @@
+"""
+screens/game_screen.py
+
+Halaman utama permainan Color Ball Sort Puzzle.
+
+Tugas:
+- Membuat UI Game
+- Menggambar tabung
+- Menggambar bola
+- Menangani klik pemain
+- Memanggil logic manager
+
+CATATAN PERBAIKAN:
+- generate_tubes(), move_ball(), check_win() DIHAPUS dari file ini (dulu
+  duplikat logic manual) -> sekarang dipanggil lewat self.game_logic
+  (lihat logic/game_logic.py, class GameLogic).
+- Import "logic.progres_manager" diperbaiki jadi "logic.progress_manager"
+  (nama file & class yang benar: ProgressManager).
+"""
+
+
 import tkinter as tk
 from tkinter import messagebox
 
@@ -12,7 +33,8 @@ from logic.level_manager import LevelManager
 from logic.score_manager import ScoreManager
 from logic.timer_manager import TimerManager
 from logic.undo_manager import UndoManager
-from logic.progres_manager import ProgressManager
+from logic.progress_manager import ProgressManager
+from theme import BG_COLOR, CARD_COLOR, PRIMARY_BLUE, TEXT_DARK
 
 
 
@@ -30,7 +52,7 @@ class GameScreen(tk.Frame):
 
         super().__init__(
             parent,
-            bg="#F8F9FF"
+            bg=BG_COLOR
         )
 
 
@@ -107,7 +129,7 @@ class GameScreen(tk.Frame):
 
         header = tk.Frame(
             self,
-            bg="#F8F9FF"
+            bg=BG_COLOR
         )
 
         header.pack(
@@ -121,8 +143,8 @@ class GameScreen(tk.Frame):
             header,
             text=f"Color Ball Sort Puzzle - Level {self.level_data['nama_level']}",
             font=("Arial",18,"bold"),
-            bg="#F8F9FF",
-            fg="#202124"
+            bg=BG_COLOR,
+            fg=TEXT_DARK
         )
 
         self.title_label.pack(
@@ -135,8 +157,8 @@ class GameScreen(tk.Frame):
             header,
             text="02:00",
             font=("Arial",16,"bold"),
-            bg="#F8F9FF",
-            fg="#2170E4"
+            bg=BG_COLOR,
+            fg=PRIMARY_BLUE
         )
 
         self.timer_label.pack(
@@ -150,8 +172,8 @@ class GameScreen(tk.Frame):
             header,
             text="Score : 0",
             font=("Arial",14,"bold"),
-            bg="#F8F9FF",
-            fg="#202124"
+            bg=BG_COLOR,
+            fg=TEXT_DARK
         )
 
         self.score_label.pack(
@@ -169,7 +191,7 @@ class GameScreen(tk.Frame):
 
         toolbar = tk.Frame(
             self,
-            bg="#F8F9FF"
+            bg=BG_COLOR
         )
 
 
@@ -236,7 +258,7 @@ class GameScreen(tk.Frame):
             self,
             width=1200,
             height=650,
-            bg="#FFFFFF",
+            bg=CARD_COLOR,
             highlightthickness=0
         )
 
@@ -576,7 +598,7 @@ class GameScreen(tk.Frame):
 
             420,
 
-            outline="#2170E4",
+            outline=PRIMARY_BLUE,
 
             width=5,
 
