@@ -20,12 +20,8 @@ import random
 
 DAFTAR_WARNA = [
     "#FF5252",  # Merah
-    "#4CAF50",  # Hijau
     "#2196F3",  # Biru
     "#FFC107",  # Kuning
-    "#9C27B0",  # Ungu
-    "#FF9800",  # Orange
-    "#00BCD4",  # Cyan
 ]
 
 KAPASITAS_TABUNG = 4
@@ -38,13 +34,14 @@ class GameLogic:
     def generate_tubes(self, jumlah_warna: int, jumlah_tabung: int) -> list:
         """
         Membuat susunan awal papan (tubes) permainan secara acak.
-        jumlah_tabung = jumlah_warna (terisi) + tabung kosong, sesuai
-        konfigurasi level (laporan BAB 2.1).
-
-        :param jumlah_warna: jumlah warna berbeda pada level ini
-        :param jumlah_tabung: jumlah total tabung (termasuk yang kosong)
-        :return: papan permainan awal (list of list, isi warna hex)
         """
+
+        # Validasi jumlah warna
+        if jumlah_warna > len(DAFTAR_WARNA):
+            raise ValueError(
+                f"Jumlah warna ({jumlah_warna}) melebihi aset yang tersedia ({len(DAFTAR_WARNA)})."
+            )
+
         warna = DAFTAR_WARNA[:jumlah_warna]
 
         semua_bola = []
@@ -57,7 +54,7 @@ class GameLogic:
         tubes = []
         for i in range(jumlah_warna):
             tubes.append(
-                semua_bola[i * self.kapasitas_tabung: (i + 1) * self.kapasitas_tabung]
+                semua_bola[i * self.kapasitas_tabung:(i + 1) * self.kapasitas_tabung]
             )
 
         jumlah_kosong = jumlah_tabung - jumlah_warna
@@ -67,15 +64,7 @@ class GameLogic:
         return tubes
 
     def validasi_pindah(self, tubes: list, sumber: int, tujuan: int) -> bool:
-        """
-        Mengecek apakah perpindahan bola dari tabung `sumber` ke `tujuan`
-        diperbolehkan, TANPA mengubah papan (read-only check).
 
-        Aturan (laporan BAB 2.1):
-        - bola hanya bisa diambil dari posisi teratas tabung sumber
-        - hanya bisa masuk ke tabung kosong ATAU tabung dengan warna teratas sama
-        - tabung tujuan tidak boleh penuh
-        """
         if sumber == tujuan:
             return False
 
@@ -85,12 +74,7 @@ class GameLogic:
         if len(asal) == 0:
             return False
 
-        bola = asal[-1]
-
         if len(target) >= self.kapasitas_tabung:
-            return False
-
-        if len(target) > 0 and target[-1] != bola:
             return False
 
         return True
