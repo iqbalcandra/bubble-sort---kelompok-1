@@ -27,7 +27,8 @@ class App(tk.Tk):
     def _placeholder(self, judul):
         self.clear_frame()
         f = tk.Frame(self, bg="#F5F7FB")
-        tk.Label(f, text=judul, font=("Arial", 28, "bold"), bg="#F5F7FB").pack(pady=40)
+        tk.Label(f, text=judul, font=("Arial", 28, "bold"),
+                 bg="#F5F7FB").pack(pady=40)
         tk.Button(f, text="Kembali ke Menu", command=self.show_menu).pack()
         f.pack(fill="both", expand=True)
         self.frame = f
@@ -128,7 +129,8 @@ class App(tk.Tk):
                 self,
                 skor_dasar=skor_dasar,
                 bonus_waktu=bonus_waktu,
-                on_level_berikutnya=(self.show_pilih_level if ada_lanjut else self.show_menu),
+                on_level_berikutnya=(
+                    self.show_pilih_level if ada_lanjut else self.show_menu),
                 on_ulangi=lambda: self.show_game(level_data),
                 on_kembali=self.show_menu,
             )
@@ -163,7 +165,8 @@ class App(tk.Tk):
         self.clear_frame()
         try:
             from screens.leaderboard import LeaderboardScreen
-            self.frame = LeaderboardScreen(self, self.user_data, on_kembali=self.show_menu)
+            self.frame = LeaderboardScreen(
+                self, self.user_data, on_kembali=self.show_menu)
             self.frame.pack(fill="both", expand=True)
         except Exception as e:
             print(e)

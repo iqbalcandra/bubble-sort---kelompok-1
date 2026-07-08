@@ -32,13 +32,11 @@ from logic.level_manager import LevelManager
 from logic.score_manager import ScoreManager
 from logic.timer_manager import TimerManager
 from logic.undo_manager import UndoManager
-from logic.progress_manager import ProgressManager
+from logic.progres_manager import ProgressManager
 from theme import BG_COLOR, CARD_COLOR, PRIMARY_BLUE, TEXT_DARK
 
 
-
 class GameScreen(tk.Frame):
-
 
     def __init__(
             self,
@@ -50,12 +48,10 @@ class GameScreen(tk.Frame):
             on_kalah=None
     ):
 
-
         super().__init__(
             parent,
             bg=BG_COLOR
         )
-
 
         # ==========================
         # DATA USER & LEVEL
@@ -71,8 +67,6 @@ class GameScreen(tk.Frame):
 
         self.on_kalah = on_kalah
 
-
-
         # ==========================
         # INISIALISASI MANAGER
         # ==========================
@@ -87,9 +81,7 @@ class GameScreen(tk.Frame):
 
         self.score_manager = ScoreManager()
 
-        self.progress_manager = ProgressManager()
-
-
+        self.progres_manager = ProgressManager()
 
         # ==========================
         # DATA GAME
@@ -97,17 +89,13 @@ class GameScreen(tk.Frame):
 
         self.selected_tube = None
 
-
         self.tubes = []
 
-
         self.colors = []
-        
+
         self.images = {}
-        
+
         self.load_assets()
-
-
 
         # ==========================
         # BUILD UI
@@ -119,14 +107,11 @@ class GameScreen(tk.Frame):
 
         self.create_game_area()
 
-
-
         # ==========================
         # MULAI LEVEL
         # ==========================
 
         self.start_level()
-
 
     def load_assets(self):
 
@@ -140,12 +125,10 @@ class GameScreen(tk.Frame):
             "Gambar dan icon halaman permainan"
         )
 
-
         print("======================")
         print("CEK ASSET GAME")
         print(folder_game)
         print("======================")
-
 
         def load(nama):
 
@@ -168,8 +151,6 @@ class GameScreen(tk.Frame):
 
                 return None
 
-
-
         self.images["merah"] = load(
             "Bola_merah.png"
         )
@@ -182,11 +163,9 @@ class GameScreen(tk.Frame):
             "Bola_kuning.png"
         )
 
-
         self.images["tabung"] = load(
             "Tabung.png"
         )
-
 
         self.images["timer"] = load(
             "Icon Timer.png"
@@ -208,9 +187,8 @@ class GameScreen(tk.Frame):
             "Icon Menu.png"
         )
 
-
         print("SELESAI LOAD ASSET")
-        
+
     # =================================================
     # HEADER
     # =================================================
@@ -228,7 +206,6 @@ class GameScreen(tk.Frame):
             padx=30
         )
 
-
         # ==========================
         # JUDUL GAME
         # ==========================
@@ -236,7 +213,7 @@ class GameScreen(tk.Frame):
         self.title_label = tk.Label(
             header,
             text=f"Color Ball Sort Puzzle - Level {self.level_data['nama_level']}",
-            font=("Arial",18,"bold"),
+            font=("Arial", 18, "bold"),
             bg=BG_COLOR,
             fg=TEXT_DARK
         )
@@ -244,7 +221,6 @@ class GameScreen(tk.Frame):
         self.title_label.pack(
             side="left"
         )
-
 
         # ==========================
         # AREA SCORE
@@ -260,7 +236,6 @@ class GameScreen(tk.Frame):
             padx=20
         )
 
-
         tk.Label(
             score_frame,
             image=self.images.get("score"),
@@ -269,11 +244,10 @@ class GameScreen(tk.Frame):
             side="left"
         )
 
-
         self.score_label = tk.Label(
             score_frame,
             text="0",
-            font=("Arial",14,"bold"),
+            font=("Arial", 14, "bold"),
             bg=BG_COLOR,
             fg=TEXT_DARK
         )
@@ -282,7 +256,6 @@ class GameScreen(tk.Frame):
             side="left",
             padx=5
         )
-
 
         # ==========================
         # AREA TIMER
@@ -298,7 +271,6 @@ class GameScreen(tk.Frame):
             padx=20
         )
 
-
         tk.Label(
             timer_frame,
             image=self.images.get("timer"),
@@ -307,11 +279,10 @@ class GameScreen(tk.Frame):
             side="left"
         )
 
-
         self.timer_label = tk.Label(
             timer_frame,
             text="02:00",
-            font=("Arial",16,"bold"),
+            font=("Arial", 16, "bold"),
             bg=BG_COLOR,
             fg=PRIMARY_BLUE
         )
@@ -326,12 +297,10 @@ class GameScreen(tk.Frame):
 
     def create_toolbar(self):
 
-
         toolbar = tk.Frame(
             self,
             bg=BG_COLOR
         )
-
 
         toolbar.pack(
             fill="x",
@@ -339,14 +308,12 @@ class GameScreen(tk.Frame):
             pady=10
         )
 
-
-
         self.undo_button = tk.Button(
             toolbar,
             image=self.images.get("undo"),
             compound="left",
             text="Undo",
-            font=("Arial",10,"bold"),
+            font=("Arial", 10, "bold"),
             command=self.undo_move
         )
 
@@ -355,14 +322,12 @@ class GameScreen(tk.Frame):
             padx=5
         )
 
-
-
         self.reset_button = tk.Button(
             toolbar,
             image=self.images.get("reset"),
             compound="left",
             text="Reset",
-            font=("Arial",10,"bold"),
+            font=("Arial", 10, "bold"),
             command=self.reset_level
         )
 
@@ -371,14 +336,12 @@ class GameScreen(tk.Frame):
             padx=5
         )
 
-
-
         self.back_button = tk.Button(
             toolbar,
             image=self.images.get("menu"),
             compound="left",
             text="Menu",
-            font=("Arial",10,"bold"),
+            font=("Arial", 10, "bold"),
             command=self.back_menu
         )
 
@@ -386,14 +349,11 @@ class GameScreen(tk.Frame):
             side="right"
         )
 
-
-
     # =================================================
     # AREA GAME CANVAS
     # =================================================
 
     def create_game_area(self):
-
 
         # Card abu-abu pembungkus tabung, biar lebih dekat ke desain Figma
         # (dulu tabung langsung nempel background utama tanpa wadah)
@@ -417,12 +377,9 @@ class GameScreen(tk.Frame):
             highlightthickness=0
         )
 
-
         self.canvas.pack(
             expand=True
         )
-
-
 
     # =================================================
     # START LEVEL
@@ -434,34 +391,27 @@ class GameScreen(tk.Frame):
 
         jumlah_tabung = self.level_data["jumlah_tabung"]
 
-
         # Membuat susunan bola awal (dipindah ke logic/game_logic.py)
         self.tubes = self.game_logic.generate_tubes(
             jumlah_warna,
             jumlah_tabung
         )
 
-
         # Set skor berdasarkan level
         self.score_manager.set_level(
             self.level_data
         )
-
 
         # Mulai timer
         self.timer_manager.start(
             self.level_data["timer"]
         )
 
-
         # Tampilkan game
         self.draw_tubes()
 
-
         # Jalankan update timer
         self.update_timer()
-
-
 
     # =================================================
     # GAMBAR SEMUA TABUNG
@@ -469,39 +419,29 @@ class GameScreen(tk.Frame):
 
     def draw_tubes(self):
 
-
         self.canvas.delete(
             "all"
         )
-
 
         jumlah_tabung = len(
             self.tubes
         )
 
-
         jarak = 150
-
 
         posisi_awal = (
             680 -
             ((jumlah_tabung - 1) * jarak) / 2
         )
 
-
-
         for index, tube in enumerate(self.tubes):
-
 
             x = (
                 posisi_awal +
                 (index * jarak)
             )
 
-
             y = 170
-
-
 
             # Kotak tabung
 
@@ -511,8 +451,6 @@ class GameScreen(tk.Frame):
                 image=self.images["tabung"],
                 tags=f"tube_{index}"
             )
-
-
 
             # Gambar bola
 
@@ -525,8 +463,6 @@ class GameScreen(tk.Frame):
                 y
 
             )
-
-
 
             # Nomor tabung
 
@@ -546,8 +482,6 @@ class GameScreen(tk.Frame):
 
             )
 
-
-
             # Event klik tabung
 
             self.canvas.tag_bind(
@@ -561,13 +495,10 @@ class GameScreen(tk.Frame):
 
             )
 
-
         # Gambar ulang highlight tabung terpilih (jika ada), supaya tetap
         # terlihat setelah canvas di-clear & digambar ulang.
         if self.selected_tube is not None:
             self.highlight_tube(self.selected_tube)
-
-
 
     def draw_balls(self, tube_index, x, y):
 
@@ -615,10 +546,8 @@ class GameScreen(tk.Frame):
 
     def click_tube(self, index):
 
-
         # Jika belum ada tabung dipilih
         if self.selected_tube is None:
-
 
             # Tidak bisa pilih tabung kosong
 
@@ -626,35 +555,24 @@ class GameScreen(tk.Frame):
 
                 return
 
-
-
             self.selected_tube = index
-
 
             self.highlight_tube(index)
 
-
-
         else:
-
 
             sumber = self.selected_tube
 
             tujuan = index
 
-
-
             # Klik tabung yang sama
             if sumber == tujuan:
-
 
                 self.selected_tube = None
 
                 self.draw_tubes()
 
                 return
-
-
 
             # Simpan state SEBELUM pindah, hanya jika langkahnya valid
             # (supaya undo tidak menyimpan state yang identik / percuma)
@@ -670,15 +588,9 @@ class GameScreen(tk.Frame):
                     tujuan
                 )
 
-
-
             self.selected_tube = None
 
-
-
             self.draw_tubes()
-
-
 
             # cek menang
 
@@ -686,14 +598,11 @@ class GameScreen(tk.Frame):
 
                 self.win_game()
 
-
-
     # =================================================
     # HIGHLIGHT TABUNG TERPILIH
     # =================================================
 
     def highlight_tube(self, index):
-
 
         # menggambar border highlight di atas tabung yang dipilih
         # (koordinat disamakan persis dengan kotak tabung di draw_tubes:
@@ -701,9 +610,7 @@ class GameScreen(tk.Frame):
 
         jumlah = len(self.tubes)
 
-
         jarak = 150
-
 
         posisi_awal = (
 
@@ -713,7 +620,6 @@ class GameScreen(tk.Frame):
 
         )
 
-
         x = (
 
             posisi_awal +
@@ -721,7 +627,6 @@ class GameScreen(tk.Frame):
             index * jarak
 
         )
-
 
         self.canvas.create_rectangle(
 
@@ -741,15 +646,13 @@ class GameScreen(tk.Frame):
 
         )
 
-
-
     # =================================================
     # UNDO
     # =================================================
+
     def undo_move(self):
 
         state = self.undo_manager.undo()
-
 
         if state:
 
@@ -759,7 +662,6 @@ class GameScreen(tk.Frame):
 
             self.draw_tubes()
 
-
         else:
 
             messagebox.showinfo(
@@ -767,14 +669,11 @@ class GameScreen(tk.Frame):
                 "Belum ada langkah yang bisa dikembalikan."
             )
 
-
-
     # =================================================
     # RESET LEVEL
     # =================================================
 
     def reset_level(self):
-
 
         jawaban = messagebox.askyesno(
 
@@ -784,28 +683,17 @@ class GameScreen(tk.Frame):
 
         )
 
-
         if not jawaban:
 
             return
 
-
-
         self.timer_manager.stop()
-
-
 
         self.undo_manager.clear()
 
-
-
         self.selected_tube = None
 
-
-
         self.start_level()
-
-
 
     # =================================================
     # UPDATE TIMER
@@ -813,23 +701,17 @@ class GameScreen(tk.Frame):
 
     def update_timer(self):
 
-
         self.timer_label.config(
 
             text=self.timer_manager.get_format_time()
 
         )
 
-
-
         if self.timer_manager.is_habis():
-
 
             self.game_over()
 
             return
-
-
 
         # update setiap 1 detik
 
@@ -841,20 +723,15 @@ class GameScreen(tk.Frame):
 
         )
 
-
-
     # =================================================
     # MENANG
     # =================================================
 
     def win_game(self):
 
-
         # hentikan timer
 
         self.timer_manager.stop()
-
-
 
         # ambil sisa waktu
 
@@ -863,8 +740,6 @@ class GameScreen(tk.Frame):
             self.timer_manager.get_sisa_waktu()
 
         )
-
-
 
         # hitung skor
 
@@ -878,15 +753,11 @@ class GameScreen(tk.Frame):
 
         )
 
-
-
         self.score_label.config(
 
             text=f"Score : {total_score}"
 
         )
-
-
 
         # simpan skor database
 
@@ -898,15 +769,11 @@ class GameScreen(tk.Frame):
 
         )
 
-
-
         # update progress
 
         self.update_player_progress(
             total_score
         )
-
-
 
         # tampilkan Victory Screen (levelselesai.py) lewat callback,
         # atau fallback messagebox kalau main.py belum menyambungkan on_menang
@@ -941,8 +808,6 @@ Bonus Waktu :
 
             )
 
-
-
     # =================================================
     # UPDATE PROGRESS PLAYER
     # =================================================
@@ -951,7 +816,6 @@ Bonus Waktu :
             self,
             score
     ):
-
 
         next_level = (
 
@@ -963,10 +827,7 @@ Bonus Waktu :
 
         )
 
-
-
         if next_level:
-
 
             level_selanjutnya = (
 
@@ -974,9 +835,7 @@ Bonus Waktu :
 
             )
 
-
         else:
-
 
             level_selanjutnya = (
 
@@ -984,9 +843,7 @@ Bonus Waktu :
 
             )
 
-
-
-        self.progress_manager.update_progress(
+        self.progres_manager.update_progress(
 
             user_id=self.user_data["id"],
 
@@ -996,18 +853,13 @@ Bonus Waktu :
 
         )
 
-
-
     # =================================================
     # GAME OVER
     # =================================================
 
     def game_over(self):
 
-
         self.timer_manager.stop()
-
-
 
         # tampilkan Game Over Screen (gameover.py) lewat callback,
         # atau fallback messagebox + auto reset kalau main.py belum
@@ -1035,14 +887,11 @@ Coba lagi untuk menyelesaikan puzzle.
 
             self.reset_level()
 
-
-
     # =================================================
     # KEMBALI KE MENU
     # =================================================
 
     def back_menu(self):
-
 
         jawaban = messagebox.askyesno(
 
@@ -1052,16 +901,11 @@ Coba lagi untuk menyelesaikan puzzle.
 
         )
 
-
         if not jawaban:
 
             return
 
-
-
         self.timer_manager.stop()
-
-
 
         if self.on_back:
 

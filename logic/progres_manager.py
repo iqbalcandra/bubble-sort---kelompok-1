@@ -18,15 +18,11 @@ from database.queries import (
 )
 
 
-
 class ProgressManager:
-
 
     def __init__(self):
 
         pass
-
-
 
     # ==========================================
     # AMBIL PROGRESS PEMAIN
@@ -36,7 +32,6 @@ class ProgressManager:
             self,
             user_id
     ):
-
         """
         Mengambil progress pemain dari database.
 
@@ -52,8 +47,6 @@ class ProgressManager:
             user_id
         )
 
-
-
     # ==========================================
     # UPDATE PROGRESS
     # ==========================================
@@ -64,7 +57,6 @@ class ProgressManager:
             next_level,
             score
     ):
-
         """
         Update progress setelah pemain menyelesaikan level.
 
@@ -79,11 +71,9 @@ class ProgressManager:
         - Membuka level berikutnya
         """
 
-
         progress = get_progress(
             user_id
         )
-
 
         # Ambil skor terbaik sebelumnya
 
@@ -98,16 +88,12 @@ class ProgressManager:
 
             old_score = 0
 
-
-
         # Ambil skor terbesar
 
         best_score = max(
             old_score,
             score
         )
-
-
 
         # Simpan ke database
 
@@ -117,8 +103,6 @@ class ProgressManager:
             best_score=best_score
         )
 
-
-
     # ==========================================
     # AMBIL LEVEL SEKARANG
     # ==========================================
@@ -127,16 +111,13 @@ class ProgressManager:
             self,
             user_id
     ):
-
         """
         Mengambil level terakhir pemain.
         """
 
-
         progress = get_progress(
             user_id
         )
-
 
         if progress:
 
@@ -145,10 +126,7 @@ class ProgressManager:
                 "Mudah"
             )
 
-
         return "Mudah"
-
-
 
     # ==========================================
     # AMBIL SKOR TERBAIK
@@ -158,16 +136,13 @@ class ProgressManager:
             self,
             user_id
     ):
-
         """
         Mengambil skor terbaik pemain.
         """
 
-
         progress = get_progress(
             user_id
         )
-
 
         if progress:
 
@@ -176,10 +151,7 @@ class ProgressManager:
                 0
             )
 
-
         return 0
-
-
 
     # ==========================================
     # RESET PROGRESS
@@ -189,12 +161,10 @@ class ProgressManager:
             self,
             user_id
     ):
-
         """
         Mengembalikan progress pemain
         ke level awal.
         """
-
 
         return update_db_progress(
             user_id=user_id,
