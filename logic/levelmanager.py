@@ -1,92 +1,90 @@
 """
 logic/level_manager.py
-Mengelola konfigurasi level & mapping nama level.
+Mengelola data & urutan level (Mudah -> Sedang -> Sulit), mengambil
+konfigurasi level dari database lewat database/queries.py.
 
-Catatan penting:
-- Di DATABASE, nama_level disimpan dalam Bahasa Inggris: 'Easy', 'Medium', 'Hard'
-  (mengikuti laporan & data_contoh.sql).
-- Di DESAIN UI, label level ditampilkan dalam Bahasa Indonesia:
-  'Mudah', 'Sedang', 'Sulit' (dipakai di screens/game_screen.py & level_screen.py).
-
-Modul ini menjembatani dua penamaan tersebut, supaya database tetap konsisten
-dengan laporan, sementara tampilan tetap sesuai desain UI/UX.
+API dipakai di screens/game_screen.py:
+    level_manager.next_level(id_level)   -> dict level berikutnya, atau None
+                                             jika id_level adalah level terakhir
 """
 
-from database.queries import get_all_levels, get_level_by_name
-
-LEVELS = [
-    {"urutan": 1, "nama_db": "Easy",   "nama_tampil": "Mudah"},
-    {"urutan": 2, "nama_db": "Medium", "nama_tampil": "Sedang"},
-    {"urutan": 3, "nama_db": "Hard",   "nama_tampil": "Sulit"},
-]
-
-TAMPIL_KE_DB = {lvl["nama_tampil"]: lvl["nama_db"] for lvl in LEVELS}
-DB_KE_TAMPIL = {lvl["nama_db"]: lvl["nama_tampil"] for lvl in LEVELS}
-URUTAN_DB = {lvl["nama_db"]: lvl["urutan"] for lvl in LEVELS}
+from database import queries
 
 
-def get_nama_tampil(nama_level: str) -> str:
-    """Mengubah nama level DB ('Easy') menjadi nama tampilan ('Mudah')."""
-    return DB_KE_TAMPIL.get(nama_level, nama_level)
+class LevelManager:
+    def __init__(self):
+        # cache sederhana supaya tidak query berulang kali dalam 1 sesi
+        self._levels_cache = None
 
+    def _ambil_semua_level_urut(self) -> list:
+        """
+        Mengambil seluruh level dari database, diurutkan berdasarkan id_level.
+        Di-cache supaya panggilan berulang (next_level, get_level_by_id, dst)
+        tidak query database berkali-kali.
+        """
+        if self._levels_cache is None:
+            data = queries.get_all_levels()
+            self._levels_cache = sorted(data, key=lambda lvl: lvl["id_level"])
+        return self._levels_cache
 
-def get_nama_db(nama_level: str) -> str:
-    """Mengubah nama level tampilan ('Mudah') menjadi nama DB ('Easy')."""
-    return TAMPIL_KE_DB.get(nama_level, nama_level)
+    def muat_ulang(self) -> None:
+        """Membersihkan cache, dipanggil jika data level di database berubah."""
+        self._levels_cache = None
 
+    def get_semua_level(self) -> list:
+        """Mengembalikan seluruh level, terurut dari Mudah -> Sulit."""
+        return self._ambil_semua_level_urut()
 
-def level_lebih_tinggi(level_a_db: str, level_b_db: str) -> str:
-    """Mengembalikan nama_db level yang urutannya lebih tinggi di antara dua level."""
-    urutan_a = URUTAN_DB.get(level_a_db, 0)
-    urutan_b = URUTAN_DB.get(level_b_db, 0)
-    return level_a_db if urutan_a >= urutan_b else level_b_db
-
-
-def next_level_db(nama_db: str):
-    """Mengembalikan nama_db level berikutnya, atau None jika sudah level terakhir."""
-    urutan_sekarang = URUTAN_DB.get(nama_db, 0)
-    for lvl in LEVELS:
-        if lvl["urutan"] == urutan_sekarang + 1:
-            return lvl["nama_db"]
-    return None
-
-
-def level_terkunci(nama_db: str, current_level_db: str) -> bool:
-    """
-    True jika level `nama_db` masih terkunci untuk pemain, berdasarkan
-    `current_level_db` (level tertinggi yang pernah dicapai pemain).
-    Level pertama (Easy) selalu terbuka.
-    """
-    return URUTAN_DB.get(nama_db, 0) > URUTAN_DB.get(current_level_db, 1)
-
-
-def build_level_data(level_row: dict) -> dict:
-    """
-    Mengubah satu baris tabel `levels` dari database menjadi dict siap pakai
-    untuk GameScreen, dengan nama_level dalam Bahasa Indonesia supaya cocok
-    dengan badge warna & label di desain UI.
-    """
-    return {
-        "id_level": level_row["id_level"],
-        "nama_level": get_nama_tampil(level_row["nama_level"]),
-        "nama_level_db": level_row["nama_level"],
-        "jumlah_warna": level_row["jumlah_warna"],
-        "jumlah_tabung": level_row["jumlah_tabung"],
-        "timer": level_row["timer"],
-        "skor_dasar": level_row["skor_dasar"],
-    }
-
-
-def get_semua_level_data():
-    """Mengambil semua level dari database, sudah dalam format siap pakai UI."""
-    rows = get_all_levels()
-    return [build_level_data(row) for row in rows]
-
-
-def get_level_data_by_nama_tampil(nama_tampil: str):
-    """Mengambil satu level (format siap pakai UI) berdasarkan nama tampilan Indonesia."""
-    nama_db = get_nama_db(nama_tampil)
-    row = get_level_by_name(nama_db)
-    if row is None:
+    def get_level_by_id(self, id_level: int):
+        """Mengambil satu level berdasarkan id_level. Return None jika tidak ada."""
+        for lvl in self._ambil_semua_level_urut():
+            if lvl["id_level"] == id_level:
+                return lvl
         return None
-    return build_level_data(row)
+
+    def get_level_by_name(self, nama_level: str):
+        """Mengambil satu level berdasarkan namanya (Mudah/Sedang/Sulit)."""
+        for lvl in self._ambil_semua_level_urut():
+            if lvl["nama_level"] == nama_level:
+                return lvl
+        return None
+
+    def next_level(self, id_level: int):
+        """
+        Mengembalikan dict level berikutnya setelah id_level.
+        Dipanggil di game_screen.py (update_player_progress) untuk menentukan
+        level_selanjutnya setelah pemain menang.
+
+        :return: dict level berikutnya, atau None jika id_level adalah level
+                 terakhir (Sulit) / id_level tidak ditemukan
+        """
+        levels = self._ambil_semua_level_urut()
+
+        for index, lvl in enumerate(levels):
+            if lvl["id_level"] == id_level:
+                if index + 1 < len(levels):
+                    return levels[index + 1]
+                return None  # sudah di level terakhir
+
+        return None  # id_level tidak ditemukan
+
+    def is_level_terakhir(self, id_level: int) -> bool:
+        """Mengecek apakah id_level adalah level terakhir (Sulit)."""
+        return self.next_level(id_level) is None
+
+    def is_level_terbuka(self, id_level: int, current_level_pemain: str) -> bool:
+        """
+        Mengecek apakah sebuah level sudah terbuka/bisa dimainkan pemain,
+        berdasarkan current_level yang tersimpan di tabel progress.
+        Dipakai oleh screens/level_screen.py untuk status lock/unlock.
+
+        Aturan: level terbuka jika id_level <= id dari current_level_pemain.
+        """
+        levels = self._ambil_semua_level_urut()
+        target_level = self.get_level_by_id(id_level)
+        pemain_level = self.get_level_by_name(current_level_pemain)
+
+        if target_level is None or pemain_level is None:
+            return False
+
+        return target_level["id_level"] <= pemain_level["id_level"]
