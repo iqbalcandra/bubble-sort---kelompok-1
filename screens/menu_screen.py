@@ -4,19 +4,21 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 
 
+# Class untuk menampilkan halaman Menu Utama
 class MenuScreen(tk.Frame):
 
+    # Inisialisasi halaman Menu Utama
     def __init__(self, parent, on_mulai=None, on_leaderboard=None,
-                 on_progress=None, on_setting=None, on_logout=None):
+                 on_progress=None, on_logout=None):
         super().__init__(parent, bg="#F5F7FB")
 
         # Callback dijalankan saat tombol/menu dipilih
         self.on_mulai = on_mulai or (lambda: None)
         self.on_leaderboard = on_leaderboard or (lambda: None)
         self.on_progress = on_progress or (lambda: None)
-        self.on_setting = on_setting or (lambda: None)
         self.on_logout = on_logout or (lambda: None)
 
+        # Menentukan lokasi folder aset
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.folder_aset = os.path.join(base_dir, "aset")
         self.folder_icon = os.path.join(self.folder_aset, "Icon menu utama")
@@ -34,44 +36,11 @@ class MenuScreen(tk.Frame):
             gambar = gambar.resize(size)
         return ImageTk.PhotoImage(gambar)
 
-    # Memberikan efek hover pada card
-    def hover_card(self, frame, masuk):
-        warna = "#F8FAFF" if masuk else "white"
-
-        def ubah(widget):
-            try:
-                widget.configure(bg=warna)
-            except tk.TclError:
-                pass
-            for child in widget.winfo_children():
-                ubah(child)
-
-        ubah(frame)
-
-    # Membuat seluruh area card bisa diklik
-    def buat_card_klik(self, frame, command):
-        frame.configure(cursor="hand2")
-        frame.bind("<Button-1>", lambda e: command())
-        frame.bind("<Enter>", lambda e: self.hover_card(frame, True))
-        frame.bind("<Leave>", lambda e: self.hover_card(frame, False))
-
-        for child in frame.winfo_children():
-            child.configure(cursor="hand2")
-            child.bind("<Button-1>", lambda e: command())
-            for item in child.winfo_children():
-                item.configure(cursor="hand2")
-                item.bind("<Button-1>", lambda e: command())
-
-    # Menampilkan konfirmasi sebelum keluar
-    def keluar(self):
-        if messagebox.askyesno("Keluar", "Apakah Anda yakin ingin keluar?"):
-            self.on_logout()
-
     # ---------------------------------------
-    # LOAD ASET
+    # ASET
     # ---------------------------------------
 
-    # Memuat gambar yang digunakan pada halaman menu
+    # Memuat gambar/icon yang digunakan
     def muat_aset(self):
         self.logo = self.muat(
             os.path.join(self.folder_aset, "logo_baru.PNG"), (55, 55)
@@ -93,9 +62,6 @@ class MenuScreen(tk.Frame):
         )
         self.gambar_progress = self.muat(
             os.path.join(self.folder_icon, "Gambar progress.png"), (60, 60)
-        )
-        self.icon_setting = self.muat(
-            os.path.join(self.folder_icon, "Button setting.png"), (26, 26)
         )
         self.icon_play = self.muat(
             os.path.join(self.folder_icon, "Icon play.png"), (40, 40)
@@ -121,12 +87,6 @@ class MenuScreen(tk.Frame):
             font=("Arial", 18, "bold"), bg="#F5F7FB", fg="#1565D8"
         ).pack(side="left")
 
-        # Tombol pengaturan
-        tk.Button(
-            header, image=self.icon_setting, bg="#F5F7FB",
-            relief="flat", cursor="hand2", command=self.on_setting
-        ).pack(side="right", padx=30)
-
     # ---------------------------------------
     # SIDEBAR
     # ---------------------------------------
@@ -148,12 +108,14 @@ class MenuScreen(tk.Frame):
             anchor="w", padx=20
         ).pack(fill="x", pady=(20, 8))
 
-        # Tombol leaderboard
+        # Tombol papan peringkat
         tk.Button(
             sidebar, text="  Papan Peringkat", image=self.icon_trophy,
             compound="left", font=("Arial", 11), bg="white",
             fg="#333333", relief="flat", anchor="w", padx=20,
-            cursor="hand2", command=self.on_leaderboard
+            cursor="hand2",
+            # Menjalankan aksi membuka leaderboard
+            command=self.on_leaderboard
         ).pack(fill="x", pady=8)
 
         # Tombol progress
@@ -161,7 +123,9 @@ class MenuScreen(tk.Frame):
             sidebar, text="  Progress", image=self.icon_progress,
             compound="left", font=("Arial", 11), bg="white",
             fg="#333333", relief="flat", anchor="w", padx=20,
-            cursor="hand2", command=self.on_progress
+            cursor="hand2",
+            # Menjalankan aksi membuka progress
+            command=self.on_progress
         ).pack(fill="x", pady=8)
 
         # Memberi ruang agar tombol keluar berada di bagian bawah
@@ -172,14 +136,16 @@ class MenuScreen(tk.Frame):
             sidebar, text="  Keluar", image=self.icon_keluar,
             compound="left", font=("Arial", 11), bg="white",
             fg="#D32F2F", relief="flat", anchor="w", padx=20,
-            cursor="hand2", command=self.keluar
+            cursor="hand2",
+            # Menjalankan aksi keluar aplikasi
+            command=self.keluar
         ).pack(fill="x", pady=20)
 
     # ---------------------------------------
     # KONTEN
     # ---------------------------------------
 
-    # Menampilkan banner dan card menu
+    # Menampilkan banner mulai game
     def buat_konten(self):
         konten = tk.Frame(self.frame_utama, bg="#F5F7FB")
         konten.pack(side="left", fill="both", expand=True, padx=15, pady=10)
@@ -195,31 +161,37 @@ class MenuScreen(tk.Frame):
         banner.bind("<Button-1>", lambda e: self.on_mulai())
         banner.configure(cursor="hand2")
 
+        # Badge banner
         badge = tk.Label(
             banner, text="  Mainkan Sekarang  ", bg="#4F8FF7",
             fg="white", font=("Arial", 9, "bold"), padx=6, pady=4
         )
         badge.place(x=30, y=25)
 
+        # Judul banner
         judul = tk.Label(
             banner, text="Mulai Game", bg="#1565D8",
             fg="white", font=("Arial", 26, "bold")
         )
         judul.place(x=30, y=65)
 
+        # Deskripsi banner
         deskripsi = tk.Label(
             banner, text="Mainkan sekarang jadilah penyortir handal.",
             bg="#1565D8", fg="white", font=("Arial", 10)
         )
         deskripsi.place(x=30, y=115)
 
+        # Membuat seluruh isi banner dapat diklik
         for widget in (badge, judul, deskripsi):
             widget.bind("<Button-1>", lambda e: self.on_mulai())
             widget.configure(cursor="hand2")
 
+        # Tombol mulai game
         tk.Button(
             banner, image=self.icon_play, bg="#1565D8", relief="flat",
             bd=0, activebackground="#1565D8", cursor="hand2",
+            # Menjalankan aksi mulai game
             command=self.on_mulai
         ).place(relx=0.94, rely=0.5, anchor="center")
 
@@ -232,7 +204,7 @@ class MenuScreen(tk.Frame):
         card_frame.pack(anchor="w", pady=20)
         card_frame.pack_propagate(False)
 
-        # Card leaderboard
+        # Card papan peringkat
         self.buat_card(
             card_frame, lebar_card, self.gambar_trophy, "Papan Peringkat",
             "Lihat peringkatmu dibandingkan\ndengan teman-teman sekolah.",
@@ -250,7 +222,7 @@ class MenuScreen(tk.Frame):
     # CARD
     # ---------------------------------------
 
-    # Membuat card leaderboard dan progress
+    # Membuat card menu
     def buat_card(self, parent, lebar, gambar, judul, deskripsi, command):
         card = tk.Frame(
             parent, bg="white", bd=1, relief="solid",
@@ -269,5 +241,43 @@ class MenuScreen(tk.Frame):
             isi, text=deskripsi, bg="white", fg="gray", justify="center"
         ).pack(pady=(5, 0))
 
+        # Mengaktifkan aksi klik pada card
         self.buat_card_klik(card, command)
         return card
+
+    # ---------------------------------------
+    # AKSI
+    # ---------------------------------------
+
+    # Memberikan efek hover pada card
+    def hover_card(self, frame, masuk):
+        warna = "#F8FAFF" if masuk else "white"
+
+        def ubah(widget):
+            try:
+                widget.configure(bg=warna)
+            except tk.TclError:
+                pass
+            for child in widget.winfo_children():
+                ubah(child)
+
+        ubah(frame)
+
+    # Membuat seluruh area card dapat diklik
+    def buat_card_klik(self, frame, command):
+        frame.configure(cursor="hand2")
+        frame.bind("<Button-1>", lambda e: command())
+        frame.bind("<Enter>", lambda e: self.hover_card(frame, True))
+        frame.bind("<Leave>", lambda e: self.hover_card(frame, False))
+
+        for child in frame.winfo_children():
+            child.configure(cursor="hand2")
+            child.bind("<Button-1>", lambda e: command())
+            for item in child.winfo_children():
+                item.configure(cursor="hand2")
+                item.bind("<Button-1>", lambda e: command())
+
+    # Menampilkan konfirmasi sebelum keluar
+    def keluar(self):
+        if messagebox.askyesno("Keluar", "Apakah Anda yakin ingin keluar?"):
+            self.on_logout()
