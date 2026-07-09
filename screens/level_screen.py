@@ -110,13 +110,23 @@ class LevelScreen(tk.Frame):
         self.current_level_pemain = progres["current_level"] if progres else "Mudah"
 
     def _build_layout(self):
-        main = tk.Frame(self, bg=BG_COLOR)
-        main.pack(fill="both", expand=True)
 
-        self._build_sidebar(main)
-
-        content = tk.Frame(main, bg=BG_COLOR)
+        content = tk.Frame(self, bg=BG_COLOR)
         content.pack(side="left", fill="both", expand=True)
+
+        # Tombol keluar di pojok kiri bawah
+        tk.Button(
+            content,
+            text=" Keluar",
+            image=self.icon_keluar,
+            compound="left",
+            font=("Arial", 10, "bold"),
+            bg=BG_COLOR,
+            fg="#E53935",
+            relief="flat",
+            activebackground=BG_COLOR,
+            command=self._klik_keluar,
+        ).place(x=20, rely=1.0, anchor="sw", y=-20)
 
         self._build_konten(content)
 
@@ -129,36 +139,6 @@ class LevelScreen(tk.Frame):
         sidebar = tk.Frame(parent, bg=SIDEBAR_BG, width=SIDEBAR_WIDTH)
         sidebar.pack(side="left", fill="y")
         sidebar.pack_propagate(False)
-
-        profil = tk.Frame(sidebar, bg=SIDEBAR_BG)
-        profil.pack(fill="x", padx=20, pady=(25, 20))
-
-        if self.icon_user:
-            avatar = tk.Label(
-                profil, image=self.icon_user, bg="#EAF2FF", bd=1, relief="solid"
-            )
-        else:
-            avatar = tk.Label(
-                profil, text="\U0001F464", font=("Arial", 18), bg="#EAF2FF",
-                width=2, height=1, bd=1, relief="solid",
-            )
-        avatar.pack(side="left")
-
-        info = tk.Frame(profil, bg=SIDEBAR_BG)
-        info.pack(side="left", padx=(10, 0))
-
-        nama_pemain = self.user_data.get("username", "Pemain")
-        level_akun = self.user_data.get("level", 1)
-
-        tk.Label(
-            info, text=nama_pemain, font=("Arial", 10, "bold"),
-            bg=SIDEBAR_BG, fg=PRIMARY_BLUE,
-        ).pack(anchor="w")
-
-        tk.Label(
-            info, text=f"Level {level_akun}", font=("Arial", 8),
-            bg=SIDEBAR_BG, fg=TEXT_MUTED,
-        ).pack(anchor="w")
 
         nav = tk.Frame(sidebar, bg=SIDEBAR_BG)
         nav.pack(fill="x", padx=14, pady=(10, 0))
@@ -203,7 +183,7 @@ class LevelScreen(tk.Frame):
         ).pack(pady=(0, 30))
 
         area_card = tk.Frame(parent, bg=BG_COLOR)
-        area_card.pack()
+        area_card.pack(pady=20)
 
         for level_data in self.semua_level:
             terbuka = self.level_manager.is_level_terbuka(
@@ -230,7 +210,7 @@ class LevelScreen(tk.Frame):
             highlightbackground="#E5E5E5" if terbuka else WARNA_ABU_TERKUNCI,
             highlightthickness=1, width=280, height=380,
         )
-        card.pack(side="left", padx=16)
+        card.pack(side="left", padx=16, pady=20)
         card.pack_propagate(False)
 
         # Menampilkan icon tingkat kesulitan
