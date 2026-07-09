@@ -1,9 +1,8 @@
 """
 screens/leaderboard_screen.py
 
-Halaman "Papan Peringkat" (Leaderboard) - menampilkan Top 10 skor
-tertinggi (BUKAN Top 5 seperti desain Figma awal, karena panduan tugas
-akhir mewajibkan minimal Top 10). Baris milik pemain yang sedang login
+Halaman "Papan Peringkat" (Leaderboard) - menampilkan Top 5 skor
+tertinggi Baris milik pemain yang sedang login
 di-highlight, sesuai desain.
 """
 
@@ -16,6 +15,7 @@ WARNA_PERINGKAT = {
     1: "#F5C518",  # emas
     2: "#9CA3AF",  # perak
     3: "#B45309",  # perunggu
+    4: "#E05252"   # merah
 }
 WARNA_PERINGKAT_DEFAULT = "#D9D9D9"
 HIGHLIGHT_BG = "#EAF0FD"
@@ -69,15 +69,13 @@ class LeaderboardScreen(tk.Frame):
             bg=BG_COLOR, fg=PRIMARY_BLUE,
         ).pack(side="left")
 
-        tk.Label(
-            header, text="\u2699", font=("Arial", 14), bg=BG_COLOR, fg="#333333",
-        ).pack(side="right")
-
     # ------------------------------------------------------------
     # CARD UTAMA (banner biru + tabel + footer)
     # ------------------------------------------------------------
+
     def _build_card_leaderboard(self):
-        card = tk.Frame(self, bg=CARD_COLOR, highlightbackground="#E0E0E0", highlightthickness=1)
+        card = tk.Frame(self, bg=CARD_COLOR,
+                        highlightbackground="#E0E0E0", highlightthickness=1)
         card.pack(fill="both", expand=True, padx=30, pady=(0, 30))
 
         # --- Banner biru atas ---
@@ -139,7 +137,8 @@ class LeaderboardScreen(tk.Frame):
         # False supaya Frame tidak ikut menyusut/melebar ke ukuran teks).
         # Ini memastikan kolom header punya lebar piksel yang SAMA PERSIS
         # dengan kolom data di _build_baris(), apa pun font yang dipakai.
-        wrapper = tk.Frame(parent, bg=CARD_COLOR, width=lebar_piksel, height=22)
+        wrapper = tk.Frame(parent, bg=CARD_COLOR,
+                           width=lebar_piksel, height=22)
         wrapper.pack(side="left")
         wrapper.pack_propagate(False)
 
@@ -159,18 +158,22 @@ class LeaderboardScreen(tk.Frame):
         baris.pack(fill="x", padx=24, pady=1, ipady=8)
 
         # --- Kolom PERINGKAT (badge bulat + nomor) ---
-        kolom_peringkat = tk.Frame(baris, bg=bg_baris, width=LEBAR_KOLOM_PERINGKAT, height=28)
+        kolom_peringkat = tk.Frame(
+            baris, bg=bg_baris, width=LEBAR_KOLOM_PERINGKAT, height=28)
         kolom_peringkat.pack(side="left")
         kolom_peringkat.pack_propagate(False)
 
         warna_badge = WARNA_PERINGKAT.get(peringkat, WARNA_PERINGKAT_DEFAULT)
-        badge = tk.Canvas(kolom_peringkat, width=28, height=28, bg=bg_baris, highlightthickness=0)
+        badge = tk.Canvas(kolom_peringkat, width=28, height=28,
+                          bg=bg_baris, highlightthickness=0)
         badge.create_oval(2, 2, 26, 26, fill=warna_badge, outline="")
-        badge.create_text(14, 14, text=str(peringkat), fill="white", font=("Arial", 9, "bold"))
+        badge.create_text(14, 14, text=str(peringkat),
+                          fill="white", font=("Arial", 9, "bold"))
         badge.pack(side="left")
 
         # --- Kolom NAMA ---
-        kolom_nama = tk.Frame(baris, bg=bg_baris, width=LEBAR_KOLOM_NAMA, height=28)
+        kolom_nama = tk.Frame(baris, bg=bg_baris,
+                              width=LEBAR_KOLOM_NAMA, height=28)
         kolom_nama.pack(side="left")
         kolom_nama.pack_propagate(False)
 
@@ -179,13 +182,15 @@ class LeaderboardScreen(tk.Frame):
             nama_teks += "  (Anda)"
 
         tk.Label(
-            kolom_nama, text=nama_teks, font=("Arial", 10, "bold" if adalah_user_sekarang else "normal"),
+            kolom_nama, text=nama_teks, font=(
+                "Arial", 10, "bold" if adalah_user_sekarang else "normal"),
             bg=bg_baris, fg=PRIMARY_BLUE if adalah_user_sekarang else TEXT_DARK,
             anchor="w",
         ).pack(fill="both", expand=True)
 
         # --- Kolom SKOR ---
-        kolom_skor = tk.Frame(baris, bg=bg_baris, width=LEBAR_KOLOM_SKOR, height=28)
+        kolom_skor = tk.Frame(baris, bg=bg_baris,
+                              width=LEBAR_KOLOM_SKOR, height=28)
         kolom_skor.pack(side="left")
         kolom_skor.pack_propagate(False)
 
@@ -195,7 +200,8 @@ class LeaderboardScreen(tk.Frame):
         ).pack(fill="both", expand=True)
 
         # --- Kolom LEVEL ---
-        kolom_level = tk.Frame(baris, bg=bg_baris, width=LEBAR_KOLOM_LEVEL, height=28)
+        kolom_level = tk.Frame(
+            baris, bg=bg_baris, width=LEBAR_KOLOM_LEVEL, height=28)
         kolom_level.pack(side="left")
         kolom_level.pack_propagate(False)
 
@@ -205,7 +211,8 @@ class LeaderboardScreen(tk.Frame):
         ).pack(fill="both", expand=True)
 
         # --- Kolom TANGGAL ---
-        kolom_tanggal = tk.Frame(baris, bg=bg_baris, width=LEBAR_KOLOM_TANGGAL, height=28)
+        kolom_tanggal = tk.Frame(
+            baris, bg=bg_baris, width=LEBAR_KOLOM_TANGGAL, height=28)
         kolom_tanggal.pack(side="left")
         kolom_tanggal.pack_propagate(False)
 
