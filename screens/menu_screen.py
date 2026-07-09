@@ -208,7 +208,7 @@ class MenuScreen(tk.Frame):
         judul.place(x=30, y=65)
 
         deskripsi = tk.Label(
-            banner, text="Lanjutkan dari Level 12 dan cetak skor tertinggi.",
+            banner, text="Mainkan sekarang jadilah penyortir handal.",
             bg="#1565D8", fg="white", font=("Arial", 10)
         )
         deskripsi.place(x=30, y=115)
