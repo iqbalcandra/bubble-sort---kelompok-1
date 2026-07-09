@@ -36,6 +36,8 @@ Susun dan kelompokkan seluruh bola berdasarkan warnanya dengan memindahkan bola 
 
 ❌ Game Over Screen
 
+↩️ & 🔄 Undo and Reset Button
+
 ## 🛠️ Teknologi yang Digunakan
 
 * 🐍 Python 3
