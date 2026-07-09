@@ -26,15 +26,11 @@ Susun dan kelompokkan seluruh bola berdasarkan warnanya dengan memindahkan bola 
 
 💾 Penyimpanan Progress Otomatis
 
-🎚️ Sistem Level Bertingkat (Easy, Medium, Hard)
+🎚️ Sistem Level Bertingkat (Mudah, Sedang, Sulit)
 
 ⏳ Countdown Timer
 
 ⭐ Sistem Skor dan Bonus Waktu
-
-↩️ Fitur Undo
-
-🔄 Reset Level
 
 🎉 Victory Screen
 
