@@ -323,8 +323,16 @@ class GameScreen(tk.Frame):
             toolbar,
             image=self.images.get("undo"),
             compound="left",
-            text="Undo",
+            text=" Undo",
             font=("Arial", 10, "bold"),
+            bg=CARD_COLOR,
+            fg=TEXT_DARK,
+            activebackground=CARD_COLOR,
+            relief="flat",
+            bd=0,
+            padx=12,
+            pady=8,
+            cursor="hand2",
             command=self.undo_move
         )
 
@@ -338,8 +346,16 @@ class GameScreen(tk.Frame):
             toolbar,
             image=self.images.get("reset"),
             compound="left",
-            text="Reset",
+            text=" Reset",
             font=("Arial", 10, "bold"),
+            bg=CARD_COLOR,
+            fg=TEXT_DARK,
+            activebackground=CARD_COLOR,
+            relief="flat",
+            bd=0,
+            padx=12,
+            pady=8,
+            cursor="hand2",
             command=self.reset_level
         )
 
@@ -353,8 +369,16 @@ class GameScreen(tk.Frame):
             toolbar,
             image=self.images.get("menu"),
             compound="left",
-            text="Menu",
+            text=" Menu",
             font=("Arial", 10, "bold"),
+            bg=CARD_COLOR,
+            fg=TEXT_DARK,
+            activebackground=CARD_COLOR,
+            relief="flat",
+            bd=0,
+            padx=12,
+            pady=8,
+            cursor="hand2",
             command=self.back_menu
         )
 
