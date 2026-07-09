@@ -17,6 +17,10 @@ BORDER_COLOR = "#E5E5E5"
 # Lebar card informasi skor
 CARD_WIDTH = 430
 
+# Jarak antar tombol ulangi dan menu utama
+GAP_TOMBOL = 12
+
+
 # Memuat gambar dari folder aset
 def muat(nama_file, size=None):
     img = Image.open(os.path.join(FOLDER_ICON, nama_file))
@@ -25,8 +29,10 @@ def muat(nama_file, size=None):
     return ImageTk.PhotoImage(img)
 
 
+# Class untuk menampilkan halaman Level Selesai
 class LevelSelesaiScreen(tk.Frame):
 
+    # Inisialisasi halaman Level Selesai
     def __init__(
         self,
         parent,
@@ -55,7 +61,7 @@ class LevelSelesaiScreen(tk.Frame):
     # ASET
     # ---------------------------------------
 
-    # Memuat gambar/icon yang digunakan pada halaman ini
+    # Memuat gambar/icon yang digunakan
     def muat_aset(self):
         self.icon_trophy = muat("Gambar trophy.png", (140, 140))
         self.icon_skor = muat("Icon skor.png", (16, 16))
@@ -68,35 +74,41 @@ class LevelSelesaiScreen(tk.Frame):
     # KONTEN
     # ---------------------------------------
 
-    # Menampilkan icon trophy, judul, card skor, dan tombol
+    # Menampilkan seluruh isi halaman
     def buat_konten(self):
 
-        # Frame utama halaman
+        # Frame utama halaman (dipusatkan secara horizontal & vertikal)
         isi = tk.Frame(self, bg=BG_COLOR)
-        isi.pack(pady=40)
+        isi.place(relx=0.5, rely=0.5, anchor="center")
 
-        # Icon trophy + bintang
-        tk.Label(isi, image=self.icon_trophy, bg=BG_COLOR).pack()
+        # Icon trophy
+        tk.Label(isi, image=self.icon_trophy, bg=BG_COLOR).pack(
+            pady=(0, 10)
+        )
 
         # Judul
         tk.Label(
             isi, text="Level Selesai!", font=("Poppins", 22, "bold"),
             bg=BG_COLOR, fg=PRIMARY_BLUE,
-        ).pack(pady=(10, 0))
+        ).pack(pady=(0, 4))
 
+        # Deskripsi
         tk.Label(
             isi, text="Selamat! Kamu berhasil menyelesaikan level ini!",
             font=("Poppins", 9), bg=BG_COLOR, fg="gray",
         ).pack(pady=(0, 20))
 
+        # Menampilkan card skor
         self.buat_card_skor(isi)
+
+        # Menampilkan tombol aksi
         self.buat_tombol(isi)
 
     # ---------------------------------------
     # CARD SKOR
     # ---------------------------------------
 
-    # Menampilkan rincian skor dasar, bonus waktu, dan total skor
+    # Menampilkan rincian skor
     def buat_card_skor(self, isi):
 
         # Menentukan lebar card agar tetap rapi
@@ -104,7 +116,7 @@ class LevelSelesaiScreen(tk.Frame):
         card_wrap.pack()
         card_wrap.pack_propagate(False)
 
-        # Card untuk menampilkan informasi skor
+        # Card skor
         card = tk.Frame(
             card_wrap, bg="white",
             highlightbackground=BORDER_COLOR, highlightthickness=1,
@@ -162,38 +174,47 @@ class LevelSelesaiScreen(tk.Frame):
     # TOMBOL
     # ---------------------------------------
 
-    # Menampilkan tombol Level Berikutnya, Ulangi, dan Menu Utama
+    # Menampilkan tombol aksi
     def buat_tombol(self, isi):
-        # Tombol level berikutnya
+
+        # Tombol Level Berikutnya (lebar disamakan dengan card skor)
         tk.Button(
             isi, text="  Level Berikutnya", image=self.icon_next, compound="right",
             bg=PRIMARY_BLUE, fg="white", activebackground=PRIMARY_BLUE,
             activeforeground="white", font=("Poppins", 10, "bold"), relief="flat",
-            bd=0, width=CARD_WIDTH - 20, pady=10, cursor="hand2",
+            bd=0, width=CARD_WIDTH, pady=10, cursor="hand2",
+            # Menjalankan aksi ke level berikutnya
             command=self.klik_level_berikutnya,
         ).pack(pady=(20, 8))
 
-        # Frame untuk tombol ulangi dan menu utama
-        bawah = tk.Frame(isi, bg=BG_COLOR)
+        # Frame untuk tombol ulangi dan menu utama (lebar disamakan dengan card skor)
+        bawah = tk.Frame(isi, bg=BG_COLOR, width=CARD_WIDTH)
         bawah.pack()
+        bawah.pack_propagate(False)
 
-        # Tombol ulangi
+        lebar_tombol = (CARD_WIDTH - GAP_TOMBOL) // 2
+
+        # Tombol Ulangi
         tk.Button(
             bawah, text=" Ulangi", image=self.icon_ulangi, compound="left",
             bg="white", fg=PRIMARY_BLUE, activeforeground=PRIMARY_BLUE,
             font=("Poppins", 9, "bold"), relief="solid", bd=1,
-            highlightbackground=PRIMARY_BLUE, width=(CARD_WIDTH // 2) - 25,
-            pady=8, cursor="hand2", command=self.klik_ulangi,
-        ).pack(side="left", padx=(0, 6))
+            highlightbackground=PRIMARY_BLUE, width=lebar_tombol,
+            pady=8, cursor="hand2",
+            # Menjalankan aksi mengulang level
+            command=self.klik_ulangi,
+        ).pack(side="left", padx=(0, GAP_TOMBOL))
 
-        # Tombol menu utama
+        # Tombol Menu Utama
         tk.Button(
             bawah, text=" Menu Utama", image=self.icon_menu, compound="left",
             bg="white", fg=PRIMARY_BLUE, activeforeground=PRIMARY_BLUE,
             font=("Poppins", 9, "bold"), relief="solid", bd=1,
-            highlightbackground=PRIMARY_BLUE, width=(CARD_WIDTH // 2) - 25,
-            pady=8, cursor="hand2", command=self.klik_kembali,
-        ).pack(side="left", padx=(6, 0))
+            highlightbackground=PRIMARY_BLUE, width=lebar_tombol,
+            pady=8, cursor="hand2",
+            # Menjalankan aksi kembali ke menu utama
+            command=self.klik_kembali,
+        ).pack(side="left")
 
     # ---------------------------------------
     # AKSI
