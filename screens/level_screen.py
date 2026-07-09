@@ -13,6 +13,11 @@ from theme import BG_COLOR, CARD_COLOR, PRIMARY_BLUE, TEXT_DARK, TEXT_MUTED, LEV
 _ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
 ASSET_MENU_DIR = os.path.join(_ROOT_DIR, "aset", "Icon menu utama")
 ASSET_LOGIN_DIR = os.path.join(_ROOT_DIR, "aset", "Icon Login")
+ASSET_LEVEL_DIR = os.path.join(
+    _ROOT_DIR,
+    "aset",
+    "Icon tingkat kesulitan"
+)
 
 
 def _load_icon(folder, nama_file):
@@ -73,12 +78,29 @@ class LevelScreen(tk.Frame):
 
         self._build_layout()
 
+    # ---------------------------------------
+    # ASET
+    # ---------------------------------------
+
+    # Memuat seluruh icon
     def _load_icons(self):
         self.icon_home = _load_icon(ASSET_MENU_DIR, "Icon home.png")
         self.icon_trophy = _load_icon(ASSET_MENU_DIR, "Icon trophy.png")
         self.icon_progress = _load_icon(ASSET_MENU_DIR, "Icon progress.png")
         self.icon_keluar = _load_icon(ASSET_MENU_DIR, "Icon keluar.png")
         self.icon_user = _load_icon(ASSET_LOGIN_DIR, "Icon user.png")
+
+        # Icon bintang untuk tiap tingkat kesulitan
+        self.icon_bintang1 = _load_icon(ASSET_LEVEL_DIR, "Bintang 1.png")
+        self.icon_bintang2 = _load_icon(ASSET_LEVEL_DIR, "Bintang 2.png")
+        self.icon_bintang3 = _load_icon(ASSET_LEVEL_DIR, "Bintang 3.png")
+
+        # Pemetaan nama level ke icon bintang yang sesuai
+        self.icon_bintang_level = {
+            "Mudah": self.icon_bintang1,
+            "Sedang": self.icon_bintang2,
+            "Sulit": self.icon_bintang3,
+        }
 
     def _muat_data(self):
         self.semua_level = self.level_manager.get_semua_level()
@@ -98,6 +120,11 @@ class LevelScreen(tk.Frame):
 
         self._build_konten(content)
 
+    # ---------------------------------------
+    # SIDEBAR
+    # ---------------------------------------
+
+    # Menampilkan sidebar navigasi
     def _build_sidebar(self, parent):
         sidebar = tk.Frame(parent, bg=SIDEBAR_BG, width=SIDEBAR_WIDTH)
         sidebar.pack(side="left", fill="y")
@@ -159,6 +186,11 @@ class LevelScreen(tk.Frame):
         btn.pack(fill="x", pady=3)
         return btn
 
+    # ---------------------------------------
+    # KONTEN
+    # ---------------------------------------
+
+    # Menampilkan pilihan tingkat kesulitan
     def _build_konten(self, parent):
         tk.Label(
             parent, text="Pilih Tingkat Kesulitan", font=("Arial", 26, "bold"),
@@ -179,6 +211,11 @@ class LevelScreen(tk.Frame):
             )
             self._build_card_level(area_card, level_data, terbuka)
 
+    # ---------------------------------------
+    # CARD LEVEL
+    # ---------------------------------------
+
+    # Membuat card untuk setiap tingkat kesulitan
     def _build_card_level(self, parent, level_data, terbuka: bool):
         nama_level = level_data["nama_level"]
         id_level = level_data["id_level"]
@@ -196,37 +233,38 @@ class LevelScreen(tk.Frame):
         card.pack(side="left", padx=16)
         card.pack_propagate(False)
 
-        canvas_icon = tk.Canvas(card, width=80, height=80,
-                                bg=CARD_COLOR, highlightthickness=0)
-        canvas_icon.pack(pady=(30, 10))
-        canvas_icon.create_oval(
-            5, 5, 75, 75, fill=aksen if terbuka else "#EDEDED", outline="")
-
+        # Menampilkan icon tingkat kesulitan
         if terbuka:
-            bintang = "\u2605" * id_level
-            canvas_icon.create_text(
-                35, 35, text=bintang, font=("Arial", 13), fill=aksen)
+            icon_bintang = self.icon_bintang_level.get(nama_level)
+            tk.Label(
+                card, image=icon_bintang, bg=CARD_COLOR,
+            ).pack(pady=(30, 10))
         else:
-            canvas_icon.create_text(
-                40, 40, text="\U0001F512", font=("Arial", 20))
+            tk.Label(
+                card, text="\U0001F512", font=("Arial", 20), bg=CARD_COLOR,
+            ).pack(pady=(30, 10))
 
+        # Menampilkan badge level
         tk.Label(
             card, text=f"TINGKAT {id_level}", font=("Arial", 8, "bold"),
             bg=badge_bg, fg=aksen if terbuka else TEKS_ABU_TERKUNCI,
             padx=10, pady=3,
         ).pack(pady=(0, 10))
 
+        # Menampilkan nama level
         tk.Label(
             card, text=nama_level, font=("Arial", 18, "bold"),
             bg=CARD_COLOR, fg=warna_teks,
         ).pack()
 
+        # Menampilkan deskripsi level
         deskripsi = DESKRIPSI_LEVEL.get(nama_level, "")
         tk.Label(
             card, text=deskripsi, font=("Arial", 9), bg=CARD_COLOR,
             fg=warna_teks, wraplength=230, justify="center",
         ).pack(pady=(8, 20), padx=16)
 
+        # Menampilkan tombol pilih level
         if terbuka:
             tk.Button(
                 card, text=f"Pilih {nama_level}", font=("Arial", 11, "bold"),
