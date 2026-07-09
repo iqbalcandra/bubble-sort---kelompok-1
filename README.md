@@ -26,15 +26,11 @@ Susun dan kelompokkan seluruh bola berdasarkan warnanya dengan memindahkan bola 
 
 💾 Penyimpanan Progress Otomatis
 
-🎚️ Sistem Level Bertingkat (Easy, Medium, Hard)
+🎚️ Sistem Level Bertingkat (Mudah, Sedang, Sulit)
 
 ⏳ Countdown Timer
 
 ⭐ Sistem Skor dan Bonus Waktu
-
-↩️ Fitur Undo
-
-🔄 Reset Level
 
 🎉 Victory Screen
 
@@ -50,6 +46,21 @@ Susun dan kelompokkan seluruh bola berdasarkan warnanya dengan memindahkan bola 
 ## 🚀 Tujuan Pengembangan
 
 Project ini dibuat sebagai tugas akhir mata kuliah **Algoritma dan Pemrograman 2** untuk mengimplementasikan konsep algoritma, struktur data, GUI desktop, dan integrasi database dalam bentuk permainan yang interaktif dan menyenangkan.
+
+
+## ⚙️ Cara Instalasi
+
+Persyaratan sistem: Python 3.9+ dan MySQL 8.0+ ( XAMPP/Laragon).
+
+Dependencies yang dibutuhkan: mysql-connector-python>=8.0.0, Pillow>=10.0.0
+
+Langkah instalasi:
+
+1. Clone repository ini dengan perintah git clone https://github.com/iqbalcandra/bubble-sort---kelompok-1.git lalu masuk ke foldernya dengan cd bubble-sort---kelompok-1
+2. Install dependencies yang dibutuhkan dengan perintah pip install -r requirements.txt
+3. Import database MySQL menggunakan file database/schema.sql (membuat database dan tabel) lalu database/data_contoh.sql (mengisi data level awal), lalu sesuaikan konfigurasi koneksi database di database/connection.py (host, user, password, nama database) sesuai environment lokal masing-masing
+4. Jalankan program dengan perintah python main.py
+
 
 ---
 
