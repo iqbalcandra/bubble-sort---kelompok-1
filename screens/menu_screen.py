@@ -29,7 +29,7 @@ class MenuScreen(tk.Frame):
         self.buat_sidebar()
         self.buat_konten()
 
-    # Memuat gambar dari folder aset
+    # Memuat gambar dari folder aset dan mengubahnya menjadi PhotoImage
     def muat(self, path, size=None):
         gambar = Image.open(path)
         if size:
@@ -253,6 +253,7 @@ class MenuScreen(tk.Frame):
     def hover_card(self, frame, masuk):
         warna = "#F8FAFF" if masuk else "white"
 
+        # Mengubah warna background widget beserta seluruh turunannya
         def ubah(widget):
             try:
                 widget.configure(bg=warna)

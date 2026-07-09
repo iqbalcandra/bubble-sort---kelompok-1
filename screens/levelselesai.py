@@ -190,8 +190,7 @@ class LevelSelesaiScreen(tk.Frame):
         # Frame untuk tombol ulangi dan menu utama (lebar disamakan dengan card skor)
         bawah = tk.Frame(isi, bg=BG_COLOR, width=CARD_WIDTH)
         bawah.pack()
-        bawah.pack_propagate(False)
-
+        
         lebar_tombol = (CARD_WIDTH - GAP_TOMBOL) // 2
 
         # Tombol Ulangi
