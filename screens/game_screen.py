@@ -113,6 +113,10 @@ class GameScreen(tk.Frame):
 
         self.start_level()
 
+    # ---------------------------------------
+    # MEMUAT ASET
+    # ---------------------------------------
+
     def load_assets(self):
 
         base_dir = os.path.dirname(
@@ -151,6 +155,7 @@ class GameScreen(tk.Frame):
 
                 return None
 
+        # Memuat seluruh gambar permainan (bola & tabung)
         self.images["merah"] = load(
             "Bola_merah.png"
         )
@@ -167,24 +172,25 @@ class GameScreen(tk.Frame):
             "Tabung.png"
         )
 
-        self.images["timer"] = load(
-            "Icon Timer.png"
-        )
-
-        self.images["score"] = load(
-            "Icon Score.png"
-        )
-
-        self.images["undo"] = load(
-            "Icon Undo.png"
-        )
-
-        self.images["reset"] = load(
-            "Icon Reset.png"
-        )
-
+        # Memuat icon toolbar
+        # icon home -> tombol Menu
         self.images["menu"] = load(
-            "Icon Menu.png"
+            "icon home.png"
+        )
+
+        # icon setting -> tombol Setting (jika nanti dipakai)
+        self.images["setting"] = load(
+            "icon setting.png"
+        )
+
+        # icon urungkan -> tombol Undo
+        self.images["undo"] = load(
+            "icon urungkan.png"
+        )
+
+        # icon ulangi -> tombol Reset
+        self.images["reset"] = load(
+            "icon ulangi.png"
         )
 
         print("SELESAI LOAD ASSET")
@@ -193,6 +199,7 @@ class GameScreen(tk.Frame):
     # HEADER
     # =================================================
 
+    # Menampilkan judul, score, dan timer permainan
     def create_header(self):
 
         header = tk.Frame(
@@ -238,7 +245,8 @@ class GameScreen(tk.Frame):
 
         tk.Label(
             score_frame,
-            image=self.images.get("score"),
+            text="\u2B50",
+            font=("Arial", 14),
             bg=BG_COLOR
         ).pack(
             side="left"
@@ -273,7 +281,8 @@ class GameScreen(tk.Frame):
 
         tk.Label(
             timer_frame,
-            image=self.images.get("timer"),
+            text="\U0001F552",
+            font=("Arial", 14),
             bg=BG_COLOR
         ).pack(
             side="left"
@@ -295,6 +304,7 @@ class GameScreen(tk.Frame):
     # TOOLBAR
     # =================================================
 
+    # Menampilkan tombol Undo, Reset, dan Menu
     def create_toolbar(self):
 
         toolbar = tk.Frame(
@@ -308,6 +318,7 @@ class GameScreen(tk.Frame):
             pady=10
         )
 
+        # Tombol Undo (icon urungkan)
         self.undo_button = tk.Button(
             toolbar,
             image=self.images.get("undo"),
@@ -322,6 +333,7 @@ class GameScreen(tk.Frame):
             padx=5
         )
 
+        # Tombol Reset (icon ulangi)
         self.reset_button = tk.Button(
             toolbar,
             image=self.images.get("reset"),
@@ -336,6 +348,7 @@ class GameScreen(tk.Frame):
             padx=5
         )
 
+        # Tombol Menu (icon home)
         self.back_button = tk.Button(
             toolbar,
             image=self.images.get("menu"),
