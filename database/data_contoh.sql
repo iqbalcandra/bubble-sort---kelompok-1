@@ -12,8 +12,8 @@ INSERT INTO levels
 (nama_level, jumlah_warna, jumlah_tabung, timer, skor_dasar)
 VALUES
 ('Mudah',3,5,120,100),
-('Sedang',5,7,90,200),
-('Sulit',7,9,60,300)
+('Sedang',3,7,90,250),
+('Sulit',3,9,60,500)
 ON DUPLICATE KEY UPDATE
 jumlah_warna=VALUES(jumlah_warna),
 jumlah_tabung=VALUES(jumlah_tabung),
