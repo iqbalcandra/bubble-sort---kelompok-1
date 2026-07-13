@@ -123,7 +123,7 @@ class ProgresScreen(tk.Frame):
             "persen_progres": persen,
             "skor_terbaik": progress["best_score"],
             "peringkat": peringkat,
-            "total_waktu": f"{jam}j {menit}m",
+            "Total_Sesi": f"{jumlah_main} sesi",
             "level_selesai": current,
             "target_judul": f"Selesaikan level {target}",
         }
@@ -298,7 +298,7 @@ class ProgresScreen(tk.Frame):
 
         tk.Label(
             kotak1,
-            text=f"Total Waktu\n{self.data_progres['total_waktu']}",
+            text=f"Total Sesi\n{self.data_progres['Total_Sesi']}",
             justify="left", bg=KOTAK_BG, font=("Poppins", 9),
         ).pack(anchor="w", padx=10)
 

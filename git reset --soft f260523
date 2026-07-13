@@ -1,0 +1,169 @@
+[33m920c722[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m revisi ui
+[33mf260523[m  (game_screen.py)
+[33m368b11e[m  (game_screen.py)
+[33m1d0b4cd[m  (level_screen.py)
+[33m76d248c[m rev final
+[33m1801a33[m menyelesaikan halaman
+[33m20f01a6[m merge: gabungkan perubahan remote (levelselesai.py)
+[33m05d63cd[m merge: gabungkan perubahan remote dengan perbaikan skor & data level
+[33m1802b4a[m menyelesaikan halaman
+[33m2ac9396[m merevisi teks
+[33mc9e5480[m merevisi teks
+[33m903222f[m menyelesaikan halaman
+[33m0e38370[m Update data_contoh.sql
+[33mba63608[m merevisi teks
+[33m85b0359[m revisi readme
+[33m6c29c6e[m benerin readme
+[33m158942c[m menghapus icon setting dan menambahkan asset peringkat 4
+[33me9e0c5b[m merevisi teks
+[33m538bc61[m final code
+[33mc2be255[m connect level screen
+[33m3c67162[m rev code queri
+[33m84e2e3c[m resolve merge
+[33mf379583[m revisi kode
+[33mce0dcda[m Update level_screen.py
+[33mf3e31d2[m rename kode
+[33m85ee248[m menyelesaikan halaman
+[33mb2601c9[m Update queries.py
+[33m54965d9[m menyelesaikan halaman
+[33m3f662d5[m Update loginscreen.py
+[33m13aed8c[m Update level_screen.py
+[33m72cf209[m Update game_screen.py
+[33mdaf17bc[m Update undo_manager.py
+[33md3b6f55[m Update score_manager.py
+[33m8d67808[m Update progres_manager.py
+[33m2d7344e[m Update levelmanager.py
+[33m272e9b0[m Update game_logic.py
+[33m5bbbf89[m Update queries.py
+[33md60ec8d[m menyelesaikan game over
+[33maaf0992[m menyelesaikan level selesai
+[33mc8fe1e1[m menyelesaikan level selesai
+[33mee66639[m menyelesaikan level selesai
+[33m3a8ceb8[m Merge branch 'main' of https://github.com/iqbalcandra/bubble-sort---kelompok-1
+[33mb32a088[m menyelesaikan main
+[33mdefba2b[m menghapus setting
+[33mb11aa54[m Merge branch 'main' of https://github.com/iqbalcandra/bubble-sort---kelompok-1
+[33m248e5a6[m nambah tk frame
+[33md12b4ad[m Update leaderboard.py
+[33mab4dd0f[m Update level_screen.py
+[33mbb58e7d[m Update undo_manager.py
+[33mc572f54[m Update score_manager.py
+[33m08bc799[m Update levelmanager.py
+[33mc5801e7[m Update levelmanager.py
+[33m8ac6971[m Update schema.sql
+[33macaa9c0[m Update data_contoh.sql
+[33ma281a23[m Update connection.py
+[33me3bdf9d[m Update queries.py
+[33m6e8aebd[m Update game_screen.py
+[33m7dad26d[m menyelesaikan menu
+[33md8e6cb9[m Merge branch 'main' of https://github.com/iqbalcandra/bubble-sort---kelompok-1
+[33m5b81b03[m menyelesaikan main dan menu
+[33m676bd82[m menambahkan komen di baris kode
+[33m09fbd66[m revisi levelselesai
+[33m2fa48b9[m revisi leaderboard
+[33m44db7e2[m ubah class progres
+[33md7fb198[m mengganti ke class
+[33m1ce7a15[m Merge branch 'main' of https://github.com/iqbalcandra/bubble-sort---kelompok-1
+[33m5d545f6[m membuat file main
+[33m16829d7[m resize
+[33m58f5655[m membuat file main
+[33m50aaf21[m Merge branch 'main' of https://github.com/iqbalcandra/bubble-sort---kelompok-1
+[33maf6a584[m revisi kode levelselesai
+[33mbc03d5e[m Update theme.py
+[33mc8d335f[m Selesaikan merge
+[33m00a45b0[m theme
+[33m90d467b[m Merge branch 'main' of https://github.com/iqbalcandra/bubble-sort---kelompok-1
+[33m5eb90d1[m memindah folder login ke dalam folder screen
+[33m4b0819e[m revisi kode
+[33m4dd839a[m Create theme.py
+[33m9a83959[m Delete screens/theme.py
+[33mc092105[m memindah folder login ke dalam folder screen
+[33m6aa9cba[m memindah folder login ke dalam folder screen
+[33m4dd2e41[m Menyelesaikan halaman  menu screen
+[33me1b4c3e[m Update level_screen.py
+[33mbfc038d[m Update game_screen.py
+[33md0e912d[m Add files via upload
+[33m07bda8a[m Add files via upload
+[33ma204e83[m Add files via upload
+[33ma7d1cbd[m Update game_screen.py
+[33m50cc88e[m Update undo_manager.py
+[33m9b6d3f7[m Update timer_manager.py
+[33mae519e5[m Update score_manager.py
+[33m940fd1c[m Update levelmanager.py
+[33mb87ee5d[m Add files via upload
+[33m8651fce[m Delete screens/screen_level.py
+[33m7ded789[m Update game_screen.py
+[33m4861eb2[m Update game_screen.py
+[33m5d0424f[m Menyelesaikan halaman  menu screen
+[33mae5de3c[m Menyelesaikan tampilan halaman game over
+[33m53a28d4[m Update screen_level.py
+[33m760651a[m Update screen_level.py
+[33m263a55b[m Melengkapi kode menu screen
+[33m83b349b[m Update levelmanager.py
+[33m4a17520[m Add files via upload
+[33m284aa66[m Add files via upload
+[33ma5e3a5d[m Update screen_level.py
+[33m84a0559[m Add files via upload
+[33m1ac31f1[m Delete database/queries.py
+[33mf723174[m menambahkan file progres
+[33mb9a1b14[m nambah asset
+[33meba40ef[m Merge branch 'main' of https://github.com/iqbalcandra/bubble-sort---kelompok-1
+[33me0842f6[m Masukin aset
+[33m3f4ad40[m Add files via upload
+[33m47540cb[m Delete database/schema.sql
+[33mccae8d6[m Delete database/queries.py
+[33m2f1bd48[m Delete database/data_contoh.sql
+[33m72a4399[m Delete database/connection.py
+[33mb190e56[m Masukin aset
+[33mb1d68b0[m Masukin aset
+[33md9f243a[m Masukin aset
+[33m0c380d8[m Merge branch 'main' of https://github.com/iqbalcandra/bubble-sort---kelompok-1
+[33m21e2ecf[m Masukin aset
+[33me26cedd[m Add files via upload
+[33ma930ee8[m Delete screens/game_screen.py
+[33m05b3c6f[m menambahkan komen ke kode gameover
+[33m445c62b[m menambahkan komen di kode lvselesai
+[33mf26295d[m menambahkan komen pada kode login
+[33m61ae7ae[m menambahkan file alpro
+[33m8982357[m gnti logo
+[33m2579141[m mengganti code sesuai ui
+[33mfc45317[m Add files via upload
+[33madf7b60[m Delete screens/game_screen.py
+[33mf8b14b4[m Add files via upload
+[33mf0185fe[m Add files via upload
+[33m85d77dd[m membuat tampilan milih level
+[33mf727685[m mengubah tampilan leaderboard
+[33md1f592c[m mengubah tampilan loginscreen sesuai UI
+[33m50820b1[m menambahkan folder aset
+[33m4c8f143[m Delete screens/Levelscreen.py
+[33mf8d9068[m membuat folder logic
+[33m9f4086f[m update menu screen
+[33ma61d35b[m membuat tampilan levelscreen
+[33mfbf8a51[m menambahkan tampilan menu utama
+[33m327ab0f[m membuat fitur leaderboard
+[33m6162aa6[m Merge branch 'main' into fitur-leaderboard
+[33ma22fcb5[m Merge pull request #4 from iqbalcandra/feature/database
+[33m1b40270[m[33m ([m[1;31morigin/fitur-leaderboard[m[33m, [m[1;32mfitur-leaderboard[m[33m)[m menambahkan fitur leaderboard
+[33mf7b6517[m membuat tampilan leaderboard
+[33m3198d05[m refactor: simplify comments schema.sql
+[33m381fadd[m refactor: simplify comments connection.py
+[33m28a629e[m hapus menu_screen.py lama
+[33m041f43e[m Add files via upload
+[33m1686163[m Delete screens/tampilan.py
+[33m040c433[m membuat tampilan menu bubble sort
+[33macf2c7b[m feat: add database module (connection, queries, schema)
+[33mf749cb7[m Merge pull request #3 from iqbalcandra/tampilan-tkinter
+[33mad57278[m[33m ([m[1;31morigin/tampilan-tkinter[m[33m, [m[1;32mtampilan-tkinter[m[33m)[m membuat tampilan login bubble sort
+[33m181a371[m Clean repository structure
+[33md8a964b[m Move menu_screen.py into screens folder
+[33m05005ec[m feat: create menu screen
+[33m0aa8e7c[m Create menu_screen.py
+[33m3911001[m Merge branch 'main.py'
+[33mc06e56c[m Merge pull request #2 from iqbalcandra/tes
+[33mb638820[m Merge branch 'tampilan-tkinter'
+[33med1e143[m Menambahkan file bbhbh.py
+[33ma766cdf[m testing
+[33mdd476ba[m Revise README with detailed game information
+[33m4ca7a11[m Revise README to describe Color Ball Sort Puzzle
+[33mcca886e[m testing file pertama
+[33m55657f3[m Initial commit

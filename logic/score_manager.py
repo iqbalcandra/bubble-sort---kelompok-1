@@ -10,7 +10,6 @@ class ScoreManager:
         self.bonus_waktu = 0
         self.total_score = 0
 
-
     def set_level(self, level_data):
 
         self.level_data = level_data
@@ -32,13 +31,11 @@ class ScoreManager:
         else:
             self.base_score = 100
 
-
     # ==========================================
     # HITUNG SKOR
     # ==========================================
 
     def hitung_skor(self, sisa_waktu):
-
         """
         Menghitung skor akhir.
 
@@ -52,20 +49,14 @@ class ScoreManager:
         10 poin / detik
         """
 
-
         self.bonus_waktu = sisa_waktu * 10
-
 
         self.total_score = (
             self.base_score +
             self.bonus_waktu
         )
 
-
         return self.total_score
-
-
-
 
     # ==========================================
     # SIMPAN SKOR DATABASE
@@ -76,11 +67,9 @@ class ScoreManager:
             user_id,
             level_reached
     ):
-
         """
         Menyimpan skor ke tabel scores.
         """
-
 
         return simpan_skor(
             user_id=user_id,
@@ -88,15 +77,11 @@ class ScoreManager:
             level_reached=level_reached
         )
 
-
-
-
     # ==========================================
     # RINCIAN SKOR
     # ==========================================
 
     def get_rincian_skor(self):
-
 
         return {
 
